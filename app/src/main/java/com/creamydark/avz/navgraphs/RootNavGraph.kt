@@ -26,10 +26,6 @@ fun SetUpNavGraph(navHostController: NavHostController){
 
     val userState_ = viewmodel._userState.collectAsState().value
 
-
-
-    //awdadaddawdsawdsawd
-
     NavHost(modifier = Modifier.fillMaxSize(),navController = navHostController, startDestination = Screen.Splash.route ){
         composable(route = Screen.Splash.route){
             SplashScreen(navHostController)

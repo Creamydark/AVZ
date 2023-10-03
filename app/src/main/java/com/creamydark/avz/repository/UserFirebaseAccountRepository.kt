@@ -6,7 +6,7 @@ import kotlinx.coroutines.flow.Flow
 
 interface UserFirebaseAccountRepository {
 
-    suspend fun signInAccount(email: String,password: String):Flow<ResultResponse<String>>
+    suspend fun signInAccount(email: String,password: String):Flow<FirebaseAccountResponseData>
 
     suspend fun signOut()
 

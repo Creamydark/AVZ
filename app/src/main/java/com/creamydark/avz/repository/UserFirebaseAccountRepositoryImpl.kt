@@ -22,15 +22,15 @@ class UserFirebaseAccountRepositoryImpl(
     override suspend fun signInAccount(
         email: String,
         password: String
-    ): Flow<ResultResponse<String>> {
+    ): Flow<FirebaseAccountResponseData> {
         return callbackFlow {
-            trySend(ResultResponse.Loading())
+            trySend(FirebaseAccountResponseData(isLoading = true))
             try {
                 val c = auth.signInWithEmailAndPassword(email, password)
                 c.await()
-                trySend(ResultResponse.Success(data = "Login Sucessfully"))
+                trySend(FirebaseAccountResponseData(isSuccessful = "Sign in successful"))
             }catch (e :Throwable){
-                trySend(ResultResponse.Error(errorMessage = e.localizedMessage))
+                trySend(FirebaseAccountResponseData(error = "${e.localizedMessage}"))
             }
             awaitClose()
         }

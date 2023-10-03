@@ -33,7 +33,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
@@ -45,12 +44,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.creamydark.avz.R
 import com.creamydark.avz.navgraphs.Screen
 import com.creamydark.avz.viewmodels.LoginViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.creamydark.avz.datamodels.FirebaseAccountResponseData
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -58,72 +56,39 @@ fun LoginScreen2(navHostController: NavHostController) {
 
     val viewModel = hiltViewModel<LoginViewModel>()
 
-    val signInResult = viewModel._signInResult.collectAsState()
+    val signInResult by viewModel._signInResult.collectAsState()
 
-    var email by remember {
-        mutableStateOf("")
-    }
-    var emailErrorState by remember {
-        mutableStateOf(false)
-    }
-    var password by remember {
-        mutableStateOf("")
-    }
-    var showPassword by remember {
-        mutableStateOf(false)
-    }
+    val email by viewModel._email.collectAsStateWithLifecycle()
 
-    val dialogState = signInResult.value.isSuccessful.isNotBlank()||signInResult.value.error.isNotBlank()
+    val emailErrorState by viewModel._emailErrorState.collectAsStateWithLifecycle()
 
+    val password by viewModel._password.collectAsStateWithLifecycle()
 
-    val loginBtnState = !signInResult.value.isLoading
+    val showPassword by viewModel._showPassword.collectAsStateWithLifecycle()
 
-    var dialogTitle by remember {
-        mutableStateOf("")
-    }
+    val loginBtnState by viewModel._loginBtnState.collectAsStateWithLifecycle()
 
+    val alertDialogState by viewModel._alertDialogState.collectAsStateWithLifecycle()
 
-    val dialogMessage = if (signInResult.value.isSuccessful.isNotBlank()){
-        signInResult.value.isSuccessful
-    }else if (signInResult.value.error.isNotBlank()){
-        signInResult.value.error
+    val dialogMessage = if (signInResult.error.isNotEmpty()){
+        signInResult.error
+    }else if (signInResult.isSuccessful.isNotEmpty()){
+        signInResult.isSuccessful
     }else{
         ""
     }
 
+    if (dialogMessage.isNotEmpty()){
+        viewModel.alertDialogState(true)
+    }else{
+        viewModel.alertDialogState(false)
+    }
+
     when{
-        dialogState ->{
-            AlertDialog(
-                onDismissRequest = {
-                    viewModel.dialogState(false)
-                },
-                confirmButton = {
-                    TextButton(onClick = {
-                        viewModel.dialogState(false)
-                    }) {
-                        Text(text = "Okay")
-                    }
-                },
-                icon = {
-                    Icon(imageVector = Icons.Default.Info, contentDescription = "")
-                },
-                title = {
-                    Text(
-                        text = dialogTitle,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 20.sp
-                    )
-                },
-                text = {
-                    Text(
-                        modifier = Modifier.fillMaxWidth(),
-                        text = dialogMessage,
-                        fontWeight = FontWeight.Normal,
-                        fontSize = 16.sp,
-                        textAlign = TextAlign.Center
-                    )
-                }
-            )
+        alertDialogState ->{
+            CustomAlertDialog(title = "Details", message = dialogMessage) {
+                viewModel.alertDialogState(false)
+            }
         }
     }
 
@@ -139,67 +104,24 @@ fun LoginScreen2(navHostController: NavHostController) {
                     message = stringResource(id = R.string.login_below_title_text)
                 )
                 Spacer(modifier = Modifier.size(48.dp))
-
-
-                OutlinedTextField(
-                    modifier = Modifier.fillMaxWidth(),
-                    singleLine = true,
-                    leadingIcon = {
-                        Icon(imageVector = Icons.Default.Email, contentDescription = "")
-                    },
-                    label = {
-                        Text(text = "Email")
-                    },
-                    placeholder = {
-                        Text(text = "choiyena@gmail.com")
-                    },
-                    isError = emailErrorState,
+                EmailCustomTextField(
+                    errorState = emailErrorState,
                     value = email,
-                    onValueChange = {
-                        email = it
-                        emailErrorState = !checkEmail(it)
+                    onTextChanged = {
+                        viewModel.editEmail(it)
                     }
                 )
                 Spacer(modifier = Modifier.size(16.dp))
-                OutlinedTextField(
+                PasswordCustomTextField(
                     modifier = Modifier.fillMaxWidth(),
-                    singleLine = true,
-                    leadingIcon = {
-                        Icon(imageVector = Icons.Default.Lock, contentDescription = "")
-                    },
-                    trailingIcon = {
-                        if (showPassword){
-                            IconButton(onClick = { showPassword = false }) {
-                                Icon(
-                                    imageVector = ImageVector.vectorResource(R.drawable.baseline_visibility_24),
-                                    contentDescription = "hide_password"
-                                )
-                            }
-                        }else{
-                            IconButton(onClick = { showPassword = true  }) {
-                                Icon(
-                                    ImageVector.vectorResource(R.drawable.baseline_visibility_off_24),
-                                    contentDescription = "hide_password"
-                                )
-                            }
-                        }
-                    },
-                    label = {
-                        Text(text = "Password")
-                    },
-                    placeholder = {
-                        //Text(text = "choiyena@gmail.com")
-                    },
+                    showPassword = showPassword,
                     value = password,
-                    onValueChange = {
-                        password = it
+                    onTextChanged = {
+                        viewModel.editPassword(it)
                     },
-                    visualTransformation =  if (showPassword) {
-                        VisualTransformation.None
-                    } else {
-                        PasswordVisualTransformation()
-                    },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
+                    showBtn = {
+                        viewModel.showBtnPassword(it)
+                    }
                 )
                 Spacer(modifier = Modifier.size(16.dp))
 
@@ -230,7 +152,7 @@ fun LoginScreen2(navHostController: NavHostController) {
                     )
                     .align(Alignment.BottomCenter),
                 onClick = {
-                    viewModel.signIn(email, password)
+                    viewModel.signIn()
                 },
                 enabled = loginBtnState
             ) {
@@ -240,11 +162,106 @@ fun LoginScreen2(navHostController: NavHostController) {
     }
 }
 
-
-@Preview(showBackground = true)
 @Composable
-fun somePrev() {
-    MaterialTheme{
+fun CustomAlertDialog(
+    title:String,
+    message:String,
+    onDismiss:()->Unit
+) {
+    AlertDialog(
+        onDismissRequest = { onDismiss() },
+        confirmButton = {
+            Text(
+                modifier = Modifier.clickable {
+                    onDismiss()
+                },
+                text = "OKAY",
+                fontWeight = FontWeight.Bold
+            )
+        },
+        text = {
+            Text(
+                text = message,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth()
+            )
+        },
+        title = {
+            Text(text = title)
+        },
+        icon = {
+            Icon(imageVector = Icons.Default.Info, contentDescription = "")
+        }
+    )
+}
 
-    }
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun EmailCustomTextField(errorState:Boolean,value: String,onTextChanged: (String) -> Unit) {
+    OutlinedTextField(
+        modifier = Modifier.fillMaxWidth(),
+        singleLine = true,
+        leadingIcon = {
+            Icon(imageVector = Icons.Default.Email, contentDescription = "")
+        },
+        label = {
+            Text(text = "Email")
+        },
+        placeholder = {
+            Text(text = "choiyena@gmail.com")
+        },
+        isError = errorState,
+        value = value,
+        onValueChange = {
+            onTextChanged(it)
+        }
+    )
+}
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun PasswordCustomTextField(modifier: Modifier,showPassword:Boolean,value :String,onTextChanged:(String)->Unit,showBtn:(Boolean)->Unit) {
+    OutlinedTextField(
+        modifier = modifier,
+        singleLine = true,
+        leadingIcon = {
+            Icon(imageVector = Icons.Default.Lock, contentDescription = "")
+        },
+        trailingIcon = {
+            if (showPassword){
+                IconButton(onClick = {
+                    showBtn(false)
+                }) {
+                    Icon(
+                        imageVector = ImageVector.vectorResource(R.drawable.baseline_visibility_24),
+                        contentDescription = "hide_password"
+                    )
+                }
+            }else{
+                IconButton(onClick = {
+                    showBtn(true)
+                }) {
+                    Icon(
+                        ImageVector.vectorResource(R.drawable.baseline_visibility_off_24),
+                        contentDescription = "hide_password"
+                    )
+                }
+            }
+        },
+        label = {
+            Text(text = "Password")
+        },
+        placeholder = {
+            //Text(text = "choiyena@gmail.com")
+        },
+        value = value,
+        onValueChange = {
+            onTextChanged(it)
+        },
+        visualTransformation =  if (showPassword) {
+            VisualTransformation.None
+        } else {
+            PasswordVisualTransformation()
+        },
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
+    )
 }
