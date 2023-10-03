@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">AVZ</string>
+    <string name="register_below_title_text">Sign up now and start exploring all that our has to offer. We\'re excited to welcome you to our community</string>
+    <string name="login_below_title_text">We\'re excited to have you back, can\'t wait to see what you\'ve been up since you last logged in.</string>
+</resources>
