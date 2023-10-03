@@ -28,7 +28,7 @@ fun SetUpNavGraph(navHostController: NavHostController){
 
 
 
-
+    //awdadaddawdsawdsawd
 
     NavHost(modifier = Modifier.fillMaxSize(),navController = navHostController, startDestination = Screen.Splash.route ){
         composable(route = Screen.Splash.route){
