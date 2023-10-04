@@ -3,8 +3,10 @@ package com.creamydark.avz.repository
 import com.creamydark.avz.datamodels.FirebaseAccountResponseData
 import com.creamydark.avz.datamodels.ResultResponse
 import com.creamydark.avz.datamodels.UserDataModel
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
@@ -18,6 +20,15 @@ class UserFirebaseAccountRepositoryImpl(
     private val auth : FirebaseAuth,
     private val db : FirebaseFirestore,
 ):UserFirebaseAccountRepository {
+    override suspend fun signInWithGoogle(account: GoogleSignInAccount): Result<Boolean> {
+        val credential = GoogleAuthProvider.getCredential(account.idToken, null)
+        return try {
+            auth.signInWithCredential(credential).await()
+            Result.success(true)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
 
     override suspend fun signInAccount(
         email: String,

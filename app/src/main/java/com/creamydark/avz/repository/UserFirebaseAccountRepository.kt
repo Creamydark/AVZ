@@ -2,9 +2,11 @@ package com.creamydark.avz.repository
 
 import com.creamydark.avz.datamodels.FirebaseAccountResponseData
 import com.creamydark.avz.datamodels.ResultResponse
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import kotlinx.coroutines.flow.Flow
 
 interface UserFirebaseAccountRepository {
+    suspend fun signInWithGoogle(account: GoogleSignInAccount): Result<Boolean>
 
     suspend fun signInAccount(email: String,password: String):Flow<FirebaseAccountResponseData>
 

@@ -1,6 +1,11 @@
 package com.creamydark.avz.navgraphs.screens
 
+import android.util.Log
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -16,6 +21,8 @@ import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -23,16 +30,17 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
@@ -40,7 +48,6 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -49,10 +56,14 @@ import androidx.navigation.NavHostController
 import com.creamydark.avz.R
 import com.creamydark.avz.navgraphs.Screen
 import com.creamydark.avz.viewmodels.LoginViewModel
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInClient
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.android.gms.common.api.ApiException
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LoginScreen2(navHostController: NavHostController) {
+fun LoginScreen2 (navHostController: NavHostController) {
 
     val viewModel = hiltViewModel<LoginViewModel>()
 
@@ -69,6 +80,38 @@ fun LoginScreen2(navHostController: NavHostController) {
     val loginBtnState by viewModel._loginBtnState.collectAsStateWithLifecycle()
 
     val alertDialogState by viewModel._alertDialogState.collectAsStateWithLifecycle()
+
+    val context = LocalContext.current
+
+    val googleSignInClient: GoogleSignInClient by remember {
+        mutableStateOf(
+            GoogleSignIn.getClient(
+                context, GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                    .requestIdToken("774052194850-834g2cdv8inbaq6h8suv3cmr56947e7d.apps.googleusercontent.com")
+                    .requestEmail()
+                    .build()
+            )
+        )
+    }
+
+
+
+    val signInLauncher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
+        try {
+            val account = task.getResult(ApiException::class.java)
+            if (account != null) {
+                viewModel.signInWithGoogle(account)
+                Log.d("signInWithGoogle", ": success")
+            } else {
+                // Handle null account
+                Log.d("signInWithGoogle", ": Handle null account")
+
+            }
+        } catch (e: ApiException) {
+            Log.d("signInWithGoogle", "LoginScreen2 ${e.statusCode}")
+        }
+    }
 
     val dialogMessage = if (signInResult.error.isNotEmpty()){
         signInResult.error
@@ -105,6 +148,7 @@ fun LoginScreen2(navHostController: NavHostController) {
                 )
                 Spacer(modifier = Modifier.size(48.dp))
                 EmailCustomTextField(
+                    modifier = Modifier.fillMaxWidth(),
                     errorState = emailErrorState,
                     value = email,
                     onTextChanged = {
@@ -124,7 +168,6 @@ fun LoginScreen2(navHostController: NavHostController) {
                     }
                 )
                 Spacer(modifier = Modifier.size(16.dp))
-
                 Row(modifier = Modifier.clickable {
                     navHostController.navigate(route = Screen.UserRegisterScreen.route)
                 }) {
@@ -140,6 +183,34 @@ fun LoginScreen2(navHostController: NavHostController) {
                         fontSize = 14.sp,
                         color = MaterialTheme.colorScheme.primary.copy()
                     )
+                }
+                Spacer(modifier = Modifier.size(16.dp))
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable {
+                            signInLauncher.launch(googleSignInClient.signInIntent)
+                        },
+                    colors = CardDefaults.cardColors(containerColor = Color.Transparent),
+                    border = BorderStroke(
+                        width = 1.dp,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                    )
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(4.dp),
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            painterResource(id = R.drawable.ic_google),
+                            contentDescription = "",
+                            modifier = Modifier.padding(8.dp)
+                        )
+                        Text(text = "Sign up with Google")
+                    }
                 }
             }
             Button(
@@ -157,6 +228,7 @@ fun LoginScreen2(navHostController: NavHostController) {
                 enabled = loginBtnState
             ) {
                 Text(text = "Login")
+
             }
         }
     }
@@ -187,7 +259,7 @@ fun CustomAlertDialog(
             )
         },
         title = {
-            Text(text = title)
+            Text(text = title, fontWeight = FontWeight.Medium)
         },
         icon = {
             Icon(imageVector = Icons.Default.Info, contentDescription = "")
@@ -197,9 +269,9 @@ fun CustomAlertDialog(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun EmailCustomTextField(errorState:Boolean,value: String,onTextChanged: (String) -> Unit) {
+fun EmailCustomTextField(modifier: Modifier,errorState:Boolean,value: String,onTextChanged: (String) -> Unit) {
     OutlinedTextField(
-        modifier = Modifier.fillMaxWidth(),
+        modifier =modifier,
         singleLine = true,
         leadingIcon = {
             Icon(imageVector = Icons.Default.Email, contentDescription = "")

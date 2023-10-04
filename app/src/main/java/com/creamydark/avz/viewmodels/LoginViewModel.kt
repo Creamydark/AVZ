@@ -1,11 +1,13 @@
 package com.creamydark.avz.viewmodels
 
 import android.text.TextUtils
+import android.util.Log
 import android.util.Patterns
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.creamydark.avz.datamodels.FirebaseAccountResponseData
 import com.creamydark.avz.repository.UserFirebaseAccountRepository
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -40,6 +42,16 @@ class LoginViewModel @Inject constructor(private val repo :UserFirebaseAccountRe
     val _alertDialogState = alertDialogState.asStateFlow()
 
 
+    fun signInWithGoogle(account: GoogleSignInAccount){
+        viewModelScope.launch {
+           val c = repo.signInWithGoogle(account)
+            if (c.isSuccess){
+                Log.d("signInWithGoogle", "signInWithGoogle: success")
+            }else{
+                Log.d("signInWithGoogle", "signInWithGoogle: failure")
+            }
+        }
+    }
 
 
     fun alertDialogState(value :Boolean){
