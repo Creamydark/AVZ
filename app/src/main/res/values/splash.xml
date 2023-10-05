@@ -1,8 +1,2 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <style name="Theme.AVZ.MySplash" parent="Theme.SplashScreen">
-        <item name="windowSplashScreenBackground">#ffff</item>
-        <item name="windowSplashScreenAnimatedIcon">@drawable/app_logo_hd_png</item>
-        <item name="postSplashScreenTheme">@style/Theme.AVZ</item>
-    </style>
-</resources>
+<resources></resources>

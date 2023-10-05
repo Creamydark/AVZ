@@ -1,8 +1,12 @@
 package com.creamydark.avz.di
 
 import android.content.Context
-import com.creamydark.avz.repository.UserFirebaseAccountRepository
-import com.creamydark.avz.repository.UserFirebaseAccountRepositoryImpl
+import com.creamydark.avz.data.repository.GoogleClientSignInRepository
+import com.creamydark.avz.data.repository.GoogleClientSignInRepositoryImpl
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount
+import com.google.android.gms.auth.api.signin.GoogleSignInClient
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -23,24 +27,25 @@ import javax.inject.Singleton
 object SomeModules {
 
     @Provides
+    @Singleton
+    fun provideGoogleSignIn(context:Context):GoogleSignInClient{
+        return GoogleSignIn.getClient(
+                context, GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken("774052194850-834g2cdv8inbaq6h8suv3cmr56947e7d.apps.googleusercontent.com")
+                .requestEmail()
+                .build())
+    }
+
+    @Provides
+    @Singleton
+    fun provideGoogleLastSignedIn(context: Context):GoogleSignInAccount?{
+        return GoogleSignIn.getLastSignedInAccount(context)
+    }
+
+    @Provides
     fun provideContext(@ApplicationContext context: Context): Context {
         return context
     }
-
-    @Provides
-    @Singleton
-    fun authFirebase():FirebaseAuth = Firebase.auth
-
-    @Provides
-    @Singleton
-    fun fireStoreDB():FirebaseFirestore = Firebase.firestore
-
-    @Provides
-    @Singleton
-    fun provideUserRepository():UserFirebaseAccountRepository {
-        return UserFirebaseAccountRepositoryImpl(authFirebase(), fireStoreDB())
-    }
-
 
 
 }
