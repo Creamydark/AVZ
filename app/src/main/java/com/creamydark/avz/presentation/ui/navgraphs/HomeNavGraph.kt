@@ -1,5 +1,6 @@
 package com.creamydark.avz.presentation.ui.navgraphs
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -27,9 +28,12 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
@@ -40,10 +44,18 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.creamydark.avz.domain.ResultType
+import com.creamydark.avz.domain.model.UserData
 import com.creamydark.avz.presentation.ui.screen.AboutAppScreen
 import com.creamydark.avz.presentation.ui.screen.LessonsScreen
+import com.creamydark.avz.presentation.ui.screen.RegisterPart2Screen
 import com.creamydark.avz.presentation.ui.screen.ScrollScrollKaScreen
 import com.creamydark.avz.presentation.ui.screen.UploadWordsScreen
+import com.creamydark.avz.presentation.viewmodels.HomeGraphViewModel
+import com.creamydark.avz.presentation.viewmodels.RegisterViewModel
+import com.creamydark.avz.presentation.viewmodels.RootNavGraphViewModel
+import com.creamydark.avz.presentation.viewmodels.WordScrollViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 
@@ -59,22 +71,26 @@ private val _drawerItems = listOf(
     DrawerItem("Upload Words", icon = Icons.Default.Send),
     DrawerItem("Favorite", icon = Icons.Default.Favorite),
     DrawerItem("Sign Out", icon = Icons.Default.Close),
-
-
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun setUpHomeGraph(){
+
+
+    val viewModel = hiltViewModel<HomeGraphViewModel>()
+
+    val wordsViewModel = hiltViewModel<WordScrollViewModel>()
+
     val navHostController = rememberNavController()
     val scope = rememberCoroutineScope()
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val selectedItem = remember { mutableStateOf(_drawerItems[0]) }
 
+    val userData = viewModel._userExtraData.collectAsState().value
 
 
-    val userEmail =""
-    val userData =""
+
 
     ModalNavigationDrawer(
         drawerContent = {
@@ -91,7 +107,7 @@ fun setUpHomeGraph(){
                                 )
                                 Spacer(Modifier.height(8.dp))
                                 Text(
-                                    text = "",
+                                    text = "${userData?.name}",
                                     fontSize = 14.sp,
                                     fontWeight = FontWeight.Normal
                                 )
@@ -124,7 +140,7 @@ fun setUpHomeGraph(){
                                             }
 
                                             "Sign Out" -> {
-//                                                viewmodel.signOut()
+                                                viewModel.signOut()
                                             }
                                         }
                                     },
@@ -165,22 +181,15 @@ fun setUpHomeGraph(){
                         AboutAppScreen(navHostController)
                     }
                     composable(route = Screen.ScrollScroll.route){
-                        ScrollScrollKaScreen(navHostController)
+
+                        ScrollScrollKaScreen(navHostController,wordsViewModel)
                     }
                     composable(route = Screen.UploadWordsScreen.route){
-                        UploadWordsScreen(navHostController = navHostController)
+
+                        UploadWordsScreen(navHostController = navHostController, viewmodel = wordsViewModel)
                     }
                 }
             }
         }
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Preview(showBackground =true)
-@Composable
-fun prev(){
-    MaterialTheme {
-
     }
 }

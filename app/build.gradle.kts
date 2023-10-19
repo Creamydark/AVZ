@@ -65,6 +65,10 @@ kapt {
 }
 
 dependencies {
+    implementation("com.maxkeppeler.sheets-compose-dialogs:core:1.2.0")
+    implementation("com.maxkeppeler.sheets-compose-dialogs:calendar:1.2.0")
+//    implementation("com.maxkeppeler.sheets-compose-dialogs:date_time:1.2.0")
+    implementation("com.maxkeppeler.sheets-compose-dialogs:clock:1.2.0")
 
     implementation("androidx.core:core-splashscreen:1.0.1")
     implementation("com.google.dagger:hilt-android:2.44")
@@ -80,9 +84,12 @@ dependencies {
     implementation("com.google.firebase:firebase-auth-ktx")
 
     // Also add the dependency for the Google Play services library and specify its version
+
     implementation("com.google.android.gms:play-services-auth:20.7.0")
     // Import the Firebase BoM
     implementation(platform("com.google.firebase:firebase-bom:32.3.1"))
+
+
 
 
     // TODO: Add the dependencies for Firebase products you want to use

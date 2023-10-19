@@ -10,6 +10,5 @@ sealed class Screen(val route :String){
     object UploadWordsScreen: Screen(route = "UploadWordsScreen_screen")
     object UserLoginScreen: Screen(route = "UserLoginScreen_screen")
     object UserRegisterScreen: Screen(route = "UserRegisterScreen_screen")
-    object LoginRegisterGraph: Screen(route = "LoginRegisterGraph_screen")
     object HomeGraph: Screen(route = "HomeGraph_screen")
 }

@@ -20,16 +20,13 @@ import com.creamydark.avz.presentation.viewmodels.RootNavGraphViewModel
 import kotlinx.coroutines.delay
 
 @Composable
-fun SplashScreen(navHostController: NavHostController){
+fun SplashScreen(navHostController: NavHostController,navtoNextScreen:()->Unit){
 
+    LaunchedEffect(true ){
+        delay(2000)
+        navtoNextScreen()
+    }
     Box(Modifier.fillMaxSize()){
-
-
-
-
-
-
-
 //        Text(modifier = Modifier.align(androidx.compose.ui.Alignment.Center) , fontSize = 72.sp , fontFamily = Chewy, text = "AVZ")
         AsyncImage(
             modifier = Modifier.align(Alignment.Center),

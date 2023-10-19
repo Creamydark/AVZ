@@ -25,12 +25,12 @@ lateinit var textToSpeech: TextToSpeech
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
-fun ScrollScrollKaScreen(navHostController: NavHostController,myviewModel: WordScrollViewModel = viewModel()){
+fun ScrollScrollKaScreen(navHostController: NavHostController,viewModel: WordScrollViewModel){
 
-    val yuri by myviewModel.itemList.collectAsState()
+    val yuri by viewModel._wordsList.collectAsState()
 
     val pagerState = rememberPagerState(pageCount = {
-        yuri.items.size
+        yuri.size
     })
 
     textToSpeech = TextToSpeech(LocalContext.current) {
@@ -53,15 +53,15 @@ fun ScrollScrollKaScreen(navHostController: NavHostController,myviewModel: WordS
                     )
             ) {page ->
                 ScrollItem(
-                    title = yuri.items[page].title,
-                    description = yuri.items[page].description,
-                    example = yuri.items[page].example,
+                    title = yuri[page].title,
+                    description = yuri[page].description,
+                    example = yuri[page].example,
                     onClick = { clickeddd ->
                         if (clickeddd == 1){
                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                                textToSpeech.speak(yuri.items[page].title,TextToSpeech.QUEUE_FLUSH,null,null);
+                                textToSpeech.speak(yuri[page].title,TextToSpeech.QUEUE_FLUSH,null,null);
                             } else {
-                                textToSpeech.speak(yuri.items[page].title, TextToSpeech.QUEUE_FLUSH, null);
+                                textToSpeech.speak(yuri[page].title, TextToSpeech.QUEUE_FLUSH, null);
                             }
                         }
                     }

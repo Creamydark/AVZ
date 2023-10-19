@@ -40,29 +40,12 @@ import com.creamydark.avz.presentation.viewmodels.RootNavGraphViewModel
 import com.creamydark.avz.ui.theme.PoppinsBold
 import com.creamydark.avz.ui.theme.PoppinsRegular
 import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.common.api.ApiException
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LoginScreen3 (navHostController: NavHostController,viewModel:RootNavGraphViewModel) {
-
-    val signInLauncher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-        val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
-        try {
-            val account = task.getResult(ApiException::class.java)
-            if (account != null) {
-                viewModel.signInWithGoogle(account)
-                Log.d("signInWithGoogle", ": success")
-            } else {
-                // Handle null account
-                Log.d("signInWithGoogle", ": Handle null account")
-
-            }
-        } catch (e: ApiException) {
-            Log.d("signInWithGoogle", "LoginScreen2 ${e.statusCode}")
-        }
-    }
-
+fun LoginScreen3 (loginClicked:()->Unit) {
     Scaffold(Modifier.fillMaxSize()) {inner->
         Box(modifier = Modifier
             .fillMaxSize()
@@ -102,7 +85,7 @@ fun LoginScreen3 (navHostController: NavHostController,viewModel:RootNavGraphVie
                     .align(Alignment.BottomCenter)
                     .padding(16.dp)
                     .clickable {
-                        signInLauncher.launch(viewModel.googleSignInAccount().signInIntent)
+                        loginClicked()
                     },
                 shape = CircleShape,
                 border = BorderStroke(width = 1.dp, color = MaterialTheme.colorScheme.onSurface),

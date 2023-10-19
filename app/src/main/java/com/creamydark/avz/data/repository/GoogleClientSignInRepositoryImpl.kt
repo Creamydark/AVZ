@@ -1,5 +1,7 @@
 package com.creamydark.avz.data.repository
 
+import android.util.Log
+import com.creamydark.avz.domain.ResultType
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.firebase.auth.FirebaseAuth
@@ -16,15 +18,23 @@ class GoogleClientSignInRepositoryImpl @Inject constructor(
 ):GoogleClientSignInRepository {
     override suspend fun signOut() {
         googleSignInClient.signOut()
+        auth.signOut()
     }
 
-    override suspend fun checkIfUserAlreadySignedIn(): Flow<Boolean> {
+    override suspend fun authListener(): Flow<ResultType<String>> {
         return callbackFlow {
+            trySend(
+                ResultType.loading()
+            )
             auth.addAuthStateListener {
-                if (it.currentUser!=null){
-                    trySend(true)
+                    user->
+                if (user.currentUser!=null){
+                    user.currentUser?.uid?.let {
+                        uid ->
+                        trySend(ResultType.success(data = uid))
+                    }
                 }else{
-                    trySend(false)
+                    trySend(ResultType.error("Current User = NULL"))
                 }
             }
             awaitClose()
@@ -39,12 +49,11 @@ class GoogleClientSignInRepositoryImpl @Inject constructor(
                 trySend(Result.success("Sign in Sucessfully"))
                 close()
             }catch (e :Throwable){
+                Log.d("GoogleClientSignInRepositoryImpl", "signInWithCredentials: ${e.message}")
                 trySend(Result.failure(e))
                 close()
             }
             awaitClose()
         }
     }
-
-
 }

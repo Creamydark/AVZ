@@ -1,5 +1,7 @@
 package com.creamydark.avz.presentation.ui.screen
 
+import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -14,21 +16,47 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import com.creamydark.avz.domain.model.ScrollableItem
+import com.creamydark.avz.domain.ResultType
+import com.creamydark.avz.domain.model.WordsDataModel
 import com.creamydark.avz.presentation.viewmodels.WordScrollViewModel
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun UploadWordsScreen(navHostController: NavHostController,viewmodel : WordScrollViewModel = viewModel()){
+fun UploadWordsScreen(navHostController: NavHostController,viewmodel : WordScrollViewModel){
+
+
+    val uploadResult by viewmodel._uploadResult.collectAsState()
+
+    val context = LocalContext.current
+
+    when(uploadResult){
+        is ResultType.Error -> {
+            val message = (uploadResult as ResultType.Error).message
+            Toast.makeText(context,message,Toast.LENGTH_SHORT).show()
+            Log.d("UploadWordsScreen", "Error:${message} ")
+        }
+        ResultType.Loading -> {
+
+        }
+        is ResultType.Success -> {
+            val message = (uploadResult as ResultType.Success<String>).data
+            Log.d("UploadWordsScreen", "Success:${message} ")
+            Toast.makeText(context,message,Toast.LENGTH_SHORT).show()
+        }
+    }
+
     val word = remember {
         mutableStateOf("")
     }
@@ -87,14 +115,14 @@ fun UploadWordsScreen(navHostController: NavHostController,viewmodel : WordScrol
                             .plus(22.dp)
                     ),
                 onClick = {
-                    val item = ScrollableItem(
+                    val item = WordsDataModel(
                         title = word.value,
                         description = desr.value,
                         example = example.value,
                         id = 0
                     )
                     viewmodel.addWords(
-                        item = item
+                        item
                     )
                 },
             ) {

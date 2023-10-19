@@ -36,7 +36,7 @@ object RepositoryModule {
     @Provides
     @Singleton
     fun provideTaskFireStoreSourceRepository(): TaskFireStoreSourceRepository{
-        return TaskFireStoreSourceRepositoryImpl(fireStoreDB())
+        return TaskFireStoreSourceRepositoryImpl(fireStoreDB(), auth = authFirebase())
     }
 
 }

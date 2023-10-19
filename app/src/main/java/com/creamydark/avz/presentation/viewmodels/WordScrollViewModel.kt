@@ -2,40 +2,54 @@ package com.creamydark.avz.presentation.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.creamydark.avz.domain.model.ResponseWordScrollSnapShot
-import com.creamydark.avz.domain.model.ScrollableItem
-import com.creamydark.avz.data.repository.WordScrollRepo
+import com.creamydark.avz.domain.ResultType
+import com.creamydark.avz.domain.model.WordsDataModel
+import com.creamydark.avz.domain.usecase.WordsFirestoreUseCase
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class WordScrollViewModel:ViewModel() {
+@HiltViewModel
+class WordScrollViewModel @Inject constructor(
+    private val wordsFirestoreUseCase: WordsFirestoreUseCase
+):ViewModel() {
 
-    private val repo = WordScrollRepo()
 
-    private val items = MutableStateFlow(ResponseWordScrollSnapShot(emptyList(),""))
-    val itemList = items.asStateFlow()
+    private val wordsList = MutableStateFlow<List<WordsDataModel>>(emptyList())
+    val _wordsList = wordsList.asStateFlow()
+
+    private val uploadResult = MutableStateFlow<ResultType<String>>(ResultType.loading())
+    val _uploadResult = uploadResult.asStateFlow()
 
     init {
         viewModelScope.launch {
-            repo.getAllWords {
-                items.update {
-                    reponse ->
-                    reponse.copy(items = it.items, errorMessage = "")
+            wordsFirestoreUseCase.getAllWords().collect{
+                result ->
+                when(result){
+                    is ResultType.Error -> {
+
+                    }
+                    ResultType.Loading -> {
+
+                    }
+                    is ResultType.Success -> {
+                        wordsList.value = result.data
+                    }
                 }
             }
         }
     }
-
-    fun getItems()=items
-
-
-
-    fun addWords(
-        item: ScrollableItem
-    ){
-        repo.addWords(item)
+    fun addWords(data : WordsDataModel){
+        viewModelScope.launch {
+            wordsFirestoreUseCase.upload(data).collect{
+                result->
+                uploadResult.value = result
+            }
+        }
     }
+
+
 
 }

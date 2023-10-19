@@ -14,9 +14,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowCompat
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.creamydark.avz.presentation.ui.navgraphs.SetUpNavGraph
+import com.creamydark.avz.presentation.viewmodels.RootNavGraphViewModel
 import com.creamydark.avz.ui.theme.AVZTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
@@ -42,7 +44,8 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    SetUpNavGraph(navHostController = navHostController)
+                    val viewmodel : RootNavGraphViewModel = hiltViewModel()
+                    SetUpNavGraph(navHostController = navHostController,viewmodel)
                 }
             }
         }

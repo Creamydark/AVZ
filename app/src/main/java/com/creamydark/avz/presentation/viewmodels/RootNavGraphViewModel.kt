@@ -2,54 +2,70 @@ package com.creamydark.avz.presentation.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.creamydark.avz.domain.model.UserData
-import com.creamydark.avz.domain.usecase.CheckIfUserSignedInListenerUseCase
+import com.creamydark.avz.domain.ResultType
+import com.creamydark.avz.domain.usecase.CheckIfUserDataExistUseCases
+import com.creamydark.avz.domain.usecase.FirebaseAuthListenerUseCase
 import com.creamydark.avz.domain.usecase.GetUserExtraDataUsecase
 import com.creamydark.avz.domain.usecase.SignInUserUsingCredentialsUseCases
+import com.creamydark.avz.domain.usecase.SignOutUseCase
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class RootNavGraphViewModel @Inject constructor(
-    private val checkIfUserSignedInListenerUseCase: CheckIfUserSignedInListenerUseCase,
-    private val getUserExtraDataUsecase: GetUserExtraDataUsecase,
-    private val userCurrent:GoogleSignInAccount?,
+    private val firebaseAuthListenerUseCase: FirebaseAuthListenerUseCase,
     private val googleSignInClient: GoogleSignInClient,
-    private val signInUserUsingCredentialsUseCases: SignInUserUsingCredentialsUseCases
+    private val signInUserUsingCredentialsUseCases: SignInUserUsingCredentialsUseCases,
+    private val signOutUseCase: SignOutUseCase,
+    private val checkIfUserDataExistUseCases: CheckIfUserDataExistUseCases
 ):ViewModel() {
-    private val googleClientUser = MutableStateFlow(false)
-    val _googleClientUser = googleClientUser.asStateFlow()
-
-    private val userExtraDataExist = MutableStateFlow(false)
-    val _userExtraDataExist = userExtraDataExist.asStateFlow()
 
 
-    private val userExtraData = MutableStateFlow<UserData?>(UserData())
-    val _userExtraData = userExtraData.asStateFlow()
 
+    private val isAuthenticated = MutableStateFlow(false)
+    val _isAuthenticated = isAuthenticated.asStateFlow()
+
+    private val errorSignInWithCreds = MutableStateFlow("")
+    val _errorSignInWithCreds = errorSignInWithCreds.asStateFlow()
+
+    private val userdataExistState = MutableStateFlow(true)
+    val _userdataExistState = userdataExistState.asStateFlow()
     init {
-        viewModelScope.launch {
-            checkIfUserSignedInListenerUseCase.invoke().collect{
-                googleClientUser.value = it
-            }
-        }
-        viewModelScope.launch {
-            userCurrent?.id?.let { uid->
-                getUserExtraDataUsecase.execute(uid).collect {
-                    result->
-                    result.onSuccess {
-                        data ->
-                        userExtraDataExist.value = true
-                        userExtraData.value = data
+        viewModelScope.launch(Dispatchers.IO) {
+            firebaseAuthListenerUseCase.invoke().collectLatest {
+                result ->
+                when(result){
+                    is ResultType.Error -> {
+
+                        isAuthenticated.value = false
                     }
-                    result.onFailure {
-                        userExtraDataExist.value = false
+                    ResultType.Loading -> {
+                        isAuthenticated.value = false
+
+                    }
+                    is ResultType.Success -> {
+                        isAuthenticated.value = true
+                        checkIfUserDataExistUseCases.check(result.data).collect{
+                            resultData ->
+                            when(resultData){
+                                is ResultType.Error -> {
+                                    userdataExistState.value = false
+                                }
+                                ResultType.Loading -> {
+
+                                }
+                                is ResultType.Success -> {
+                                    userdataExistState.value = resultData.data
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -61,10 +77,20 @@ class RootNavGraphViewModel @Inject constructor(
     fun signInWithGoogle(account:GoogleSignInAccount){
         viewModelScope.launch {
             signInUserUsingCredentialsUseCases.signIn(account = account).collect{
-
+                result ->
+                result.onSuccess {
+                    errorSignInWithCreds.value = it
+                }
+                result.onFailure {
+                    errorSignInWithCreds.value = it.message.toString()
+                }
             }
         }
     }
-
+    fun signOut(){
+        viewModelScope.launch {
+            signOutUseCase.signOut()
+        }
+    }
 
 }
