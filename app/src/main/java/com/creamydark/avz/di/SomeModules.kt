@@ -1,6 +1,7 @@
 package com.creamydark.avz.di
 
 import android.content.Context
+import com.creamydark.avz.TextToSpeechManager
 import com.creamydark.avz.data.repository.GoogleClientSignInRepository
 import com.creamydark.avz.data.repository.GoogleClientSignInRepositoryImpl
 import com.google.android.gms.auth.api.signin.GoogleSignIn
@@ -34,6 +35,12 @@ object SomeModules {
                 .requestIdToken("774052194850-834g2cdv8inbaq6h8suv3cmr56947e7d.apps.googleusercontent.com")
                 .requestEmail()
                 .build())
+    }
+
+    @Provides
+    @Singleton
+    fun provideTextToSpeechManager(context: Context):TextToSpeechManager{
+        return TextToSpeechManager(context = context)
     }
 
     @Provides

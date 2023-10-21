@@ -7,10 +7,9 @@ import kotlinx.coroutines.flow.Flow
 import java.time.LocalDate
 
 interface TaskFireStoreSourceRepository {
-    suspend fun getUserExtraData():Flow<Result<UserData?>>
+    suspend fun getUserExtraData(uid: String):Flow<ResultType<UserData>>
     suspend fun checkUserDataExist(uid:String):Flow<ResultType<Boolean>>
     suspend fun addUserExtraData(bday:LocalDate,userType:Boolean):Flow<ResultType<String>>
     suspend fun addWordsToFirestore(data :WordsDataModel):Flow<ResultType<String>>
-
-    suspend fun getWordsFromFirestore():Flow<ResultType<List<WordsDataModel>>>
+    suspend fun getWordsFromFirestore():Flow<List<WordsDataModel>>
 }

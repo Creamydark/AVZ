@@ -12,7 +12,7 @@ class WordsFirestoreUseCase @Inject constructor(private val repository: TaskFire
         return repository.addWordsToFirestore(date)
     }
 
-    suspend fun getAllWords():Flow<ResultType<List<WordsDataModel>>>{
+    suspend fun getAllWords():Flow<List<WordsDataModel>>{
         return repository.getWordsFromFirestore()
     }
 

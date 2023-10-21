@@ -1,11 +1,13 @@
 package com.creamydark.avz.presentation.viewmodels
 
+
+
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.creamydark.avz.domain.ResultType
+import com.creamydark.avz.domain.model.GoogleAccountDataModel
 import com.creamydark.avz.domain.usecase.CheckIfUserDataExistUseCases
 import com.creamydark.avz.domain.usecase.FirebaseAuthListenerUseCase
-import com.creamydark.avz.domain.usecase.GetUserExtraDataUsecase
 import com.creamydark.avz.domain.usecase.SignInUserUsingCredentialsUseCases
 import com.creamydark.avz.domain.usecase.SignOutUseCase
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
@@ -18,6 +20,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+
 @HiltViewModel
 class RootNavGraphViewModel @Inject constructor(
     private val firebaseAuthListenerUseCase: FirebaseAuthListenerUseCase,
@@ -27,7 +30,8 @@ class RootNavGraphViewModel @Inject constructor(
     private val checkIfUserDataExistUseCases: CheckIfUserDataExistUseCases
 ):ViewModel() {
 
-
+    private val googleAccountDataModel = MutableStateFlow(GoogleAccountDataModel())
+    val _googleAccountDataModel = googleAccountDataModel.asStateFlow()
 
     private val isAuthenticated = MutableStateFlow(false)
     val _isAuthenticated = isAuthenticated.asStateFlow()
@@ -37,29 +41,27 @@ class RootNavGraphViewModel @Inject constructor(
 
     private val userdataExistState = MutableStateFlow(true)
     val _userdataExistState = userdataExistState.asStateFlow()
+
     init {
         viewModelScope.launch(Dispatchers.IO) {
             firebaseAuthListenerUseCase.invoke().collectLatest {
                 result ->
                 when(result){
                     is ResultType.Error -> {
-
                         isAuthenticated.value = false
                     }
                     ResultType.Loading -> {
                         isAuthenticated.value = false
-
                     }
                     is ResultType.Success -> {
                         isAuthenticated.value = true
                         checkIfUserDataExistUseCases.check(result.data).collect{
-                            resultData ->
+                                resultData ->
                             when(resultData){
                                 is ResultType.Error -> {
                                     userdataExistState.value = false
                                 }
                                 ResultType.Loading -> {
-
                                 }
                                 is ResultType.Success -> {
                                     userdataExistState.value = resultData.data
@@ -75,7 +77,7 @@ class RootNavGraphViewModel @Inject constructor(
     fun googleSignInAccount() = googleSignInClient
 
     fun signInWithGoogle(account:GoogleSignInAccount){
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             signInUserUsingCredentialsUseCases.signIn(account = account).collect{
                 result ->
                 result.onSuccess {

@@ -29,10 +29,11 @@ import com.creamydark.avz.presentation.viewmodels.RootNavGraphViewModel
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.common.api.ApiException
 import kotlinx.coroutines.delay
+import javax.inject.Inject
 
 
 @Composable
-fun SetUpNavGraph(navHostController: NavHostController,viewmodel: RootNavGraphViewModel){
+fun SetUpNavGraph (navHostController: NavHostController, viewmodel: RootNavGraphViewModel){
 
     val context = LocalContext.current
 
@@ -55,6 +56,8 @@ fun SetUpNavGraph(navHostController: NavHostController,viewmodel: RootNavGraphVi
 
     val isAuthentacated by viewmodel._isAuthenticated.collectAsState()
 
+    val googleAccountDataModel by viewmodel._googleAccountDataModel.collectAsState()
+
     val errorSignIn by viewmodel._errorSignInWithCreds.collectAsState()
 
 
@@ -65,23 +68,15 @@ fun SetUpNavGraph(navHostController: NavHostController,viewmodel: RootNavGraphVi
     ){
         composable(route = Screen.Splash.route){
            SplashScreen(navHostController){
-               navHostController.navigate(route = Screen.UserLoginScreen.route){
-                   launchSingleTop = true
-                   popUpTo(route = Screen.Splash.route){
-                       inclusive = true
-
-                   }
-               }
            }
         }
-
         composable(route = Screen.UserLoginScreen.route){
             LoginScreen3{
                 signInLauncher.launch(viewmodel.googleSignInAccount().signInIntent)
             }
         }
         composable(route = Screen.HomeGraph.route){
-            setUpHomeGraph()
+            HomeGraphv2()
         }
         composable(route = Screen.UserRegisterScreen.route){
             val viewModel = hiltViewModel<RegisterViewModel>()
@@ -93,7 +88,6 @@ fun SetUpNavGraph(navHostController: NavHostController,viewmodel: RootNavGraphVi
         // User is logged in, check registration status
 //        val isRegistered = firestoreHelper.checkRegistrationStatus(user.uid)
         val isRegistered = viewmodel._userdataExistState.collectAsState().value
-
         if (isRegistered) {
             // User is registered, navigate to the home screen
 //            HomeScreen()
@@ -101,7 +95,6 @@ fun SetUpNavGraph(navHostController: NavHostController,viewmodel: RootNavGraphVi
                 launchSingleTop = true
                 popUpTo(route = Screen.Splash.route){
                     inclusive = true
-
                 }
             }
         } else {

@@ -7,7 +7,6 @@ import kotlinx.coroutines.flow.Flow
 interface GoogleClientSignInRepository {
     suspend fun signOut()
     suspend fun authListener():Flow<ResultType<String>>
-
     suspend fun signInWithCredentials(account: GoogleSignInAccount):Flow<Result<String>>
 
 

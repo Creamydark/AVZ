@@ -31,11 +31,13 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.creamydark.avz.domain.model.SomeItem
 import com.creamydark.avz.ui.theme.Chewy
+import com.creamydark.avz.ui.theme.PoppinsBold
+import com.creamydark.avz.ui.theme.PoppinsRegular
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LessonsScreen(navHostController: NavHostController){
+fun LessonsScreen(){
     val itemss = arrayListOf<SomeItem>()
 
     val desccc = "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book."
@@ -46,14 +48,17 @@ fun LessonsScreen(navHostController: NavHostController){
     Scaffold(
         Modifier.fillMaxSize()
     ){ innerpadding ->
-        Column(Modifier.fillMaxSize()) {
-            LazyColumn(
-                Modifier.fillMaxWidth().padding(horizontal = 22.dp), contentPadding = PaddingValues(bottom = innerpadding.calculateBottomPadding())){
-                items(itemss,key = {
-                    it.title
-                }){item ->
-                    LessonListItem(title = item.title, desc = item.description )
-                }
+        LazyColumn(
+            Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp),
+            contentPadding = PaddingValues()
+        ){
+            items(itemss,key = {
+                it.title
+            }){item ->
+                LessonListItem(title = item.title, desc = item.description )
+                Spacer(modifier = Modifier.size(16.dp))
             }
         }
     }
@@ -62,69 +67,24 @@ fun LessonsScreen(navHostController: NavHostController){
 
 
 
-@Composable
-fun ScrollItem(
-    title:String,
-    description:String,
-    example:String,
-    onClick:(Int) -> Unit
-){
-    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center){
-        Column() {
-            Text(
-                modifier = Modifier.fillMaxWidth(),
-                fontFamily = Chewy,
-                text = title,
-                textAlign = TextAlign.Center,
-                fontSize = 32.sp,
-            )
-            Spacer(modifier = Modifier.size(32.dp))
-            Text(
-                modifier = Modifier.fillMaxWidth(),
-                fontFamily = Chewy,
-                text = description,
-                textAlign = TextAlign.Center,
-                fontSize = 18.sp,
-            )
-            Spacer(modifier = Modifier.size(32.dp))
-            Text(
-                modifier = Modifier.fillMaxWidth(),
-                fontFamily = Chewy,
-                text = example,
-                textAlign = TextAlign.Center,
-                fontSize = 18.sp,
-            )
-        }
-        Row(Modifier.fillMaxWidth().align(Alignment.BottomCenter),horizontalArrangement = Arrangement.Center) {
-            IconButton(onClick = { onClick(0) }) {
-                Icon(imageVector = Icons.Default.Share, contentDescription ="share" )
-            }
-            IconButton(onClick = {
-                onClick(1)
-            }) {
-                Icon(imageVector = Icons.Default.Face, contentDescription ="speech" )
-            }
-            IconButton(onClick = { onClick(2) }) {
-                Icon(imageVector = Icons.Default.Favorite, contentDescription ="like" )
-            }
-        }
-    }
-}
+
 
 @Composable
 fun LessonListItem(title:String,desc:String){
     Card(modifier = Modifier
-        .fillMaxWidth()
-        .padding(vertical = 14.dp)) {
+        .fillMaxWidth()) {
         Text(
             modifier = Modifier.padding(16.dp),
             text = title,
-            fontFamily = Chewy,
+            fontFamily = PoppinsBold,
             fontSize = 18.sp
         )
         Text(
             modifier = Modifier.padding( start = 16.dp, end = 16.dp, bottom = 16.dp),
-            text = "\u2022 $desc"
+            text = "\u2022 $desc",
+            fontSize = 14.sp,
+            fontFamily = PoppinsRegular
+
         )
     }
 }

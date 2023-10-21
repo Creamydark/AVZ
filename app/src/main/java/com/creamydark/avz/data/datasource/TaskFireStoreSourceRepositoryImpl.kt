@@ -1,13 +1,16 @@
 package com.creamydark.avz.data.datasource
 
+import android.util.Log
 import com.creamydark.avz.domain.ResultType
 import com.creamydark.avz.domain.model.UserData
 import com.creamydark.avz.domain.model.WordsDataModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ktx.toObject
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.tasks.await
 import java.time.LocalDate
 import javax.inject.Inject
@@ -18,39 +21,45 @@ class TaskFireStoreSourceRepositoryImpl @Inject constructor(
 ):TaskFireStoreSourceRepository {
 
 
-    override suspend fun getUserExtraData(): Flow<Result<UserData?>> {
+
+    override suspend fun getUserExtraData(uid: String): Flow<ResultType<UserData>> {
         return callbackFlow {
-            try {
-                auth.currentUser?.uid?.let {
-                    uid ->
-                    val task = db.collection("users").document(uid).get()
-                    task.addOnSuccessListener {
-                        val data : UserData? = it.toObject(UserData::class.java)
-                        trySend(Result.success(data))
+            trySend(ResultType.loading())
+            val collection = db.collection("users").document(uid)
+            val reg = collection.addSnapshotListener { value, error ->
+                value?.let {
+                    valuedawd->
+                    val data = valuedawd.toObject<UserData>()
+                    if (data != null){
+                        trySend(
+                            ResultType.success(data = data)
+                        )
+                        Log.d("TaskFireStoreSourceRepositoryImpl", "getUserExtraData:${data.name} ${data.isStudent}")
+                    }else{
+                        trySend(
+                            ResultType.error(error?.message.toString())
+                        )
                     }
                 }
-            }catch (e :Throwable){
-                trySend(Result.failure(e))
-                close()
             }
-            awaitClose()
+            awaitClose {
+                reg.remove()
+            }
         }
     }
 
     override suspend fun checkUserDataExist(uid: String): Flow<ResultType<Boolean>> {
         return callbackFlow {
-            trySend(ResultType.loading())
-            db.collection("users").document(uid).get().addOnSuccessListener {
-                document ->
-                if (document.exists()){
-                    trySend(ResultType.success(true))
-                }else{
-                    trySend(ResultType.success(false))
+            val collection = db.collection("users")
+            val reg = collection.document(uid).addSnapshotListener { value, error ->
+                value?.let {
+                    trySend(ResultType.success(it.exists()))
                 }
-            }.addOnFailureListener {
-                trySend(ResultType.error(it.message.toString()))
             }
-            awaitClose()
+            awaitClose {
+                reg.remove()
+            }
+
         }
     }
 
@@ -62,7 +71,8 @@ class TaskFireStoreSourceRepositoryImpl @Inject constructor(
     ): Flow<ResultType<String>> {
         return callbackFlow {
             try {
-                auth.currentUser?.let {userrrr ->
+                auth.currentUser?.let {
+                        userrrr ->
                     val uid = userrrr.uid
                     val name = userrrr.displayName
                     val email = userrrr.email
@@ -86,7 +96,6 @@ class TaskFireStoreSourceRepositoryImpl @Inject constructor(
 
     override suspend fun addWordsToFirestore(data: WordsDataModel): Flow<ResultType<String>> {
         return callbackFlow {
-            trySend(ResultType.loading())
             try {
                 val shet = db.collection("wordsss").document(data.title).set(data)
                 shet.await()
@@ -100,17 +109,19 @@ class TaskFireStoreSourceRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun getWordsFromFirestore(): Flow<ResultType<List<WordsDataModel>>> {
+    override suspend fun getWordsFromFirestore(): Flow<List<WordsDataModel>> {
         return callbackFlow {
-            val query = db.collection("wordsss").get()
-            query.addOnSuccessListener {
-                val list = it.toObjects(WordsDataModel::class.java)
-                trySend(ResultType.success(list))
+            val collection = db.collection("wordsss")
+            val reg = collection.addSnapshotListener { value, error ->
+                value?.let {
+                    querySnapshot ->
+                    val data = querySnapshot.toObjects(WordsDataModel::class.java)
+                    trySend(data)
+                }
             }
-            query.addOnFailureListener {
-                trySend(ResultType.error(it.message.toString()))
+            awaitClose{
+                reg.remove()
             }
-            awaitClose()
         }
     }
 

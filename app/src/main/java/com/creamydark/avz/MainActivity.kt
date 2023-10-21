@@ -37,7 +37,7 @@ class MainActivity : ComponentActivity() {
         WindowCompat.setDecorFitsSystemWindows(window, false)
 //        installSplashScreen()
         setContent {
-            navHostController = rememberNavController()
+
             AVZTheme {
                 // A surface container using the 'background' color from the theme
                 Surface(
@@ -45,6 +45,7 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
                     val viewmodel : RootNavGraphViewModel = hiltViewModel()
+                    navHostController = rememberNavController()
                     SetUpNavGraph(navHostController = navHostController,viewmodel)
                 }
             }
