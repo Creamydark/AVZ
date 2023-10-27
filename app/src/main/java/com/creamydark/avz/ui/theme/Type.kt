@@ -6,29 +6,82 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 
-// Set of Material typography styles to start with
+val baseSize = 14.sp // Base size
+
 val Typography = Typography(
-    bodyLarge = TextStyle(
-        fontFamily = FontFamily.Default,
-        fontWeight = FontWeight.Normal,
-        fontSize = 16.sp,
-        lineHeight = 24.sp,
-        letterSpacing = 0.5.sp
-    )
-    /* Other default text styles to override
+    displayLarge = TextStyle(
+        fontFamily = PoppinsBold,
+        fontWeight = FontWeight.Bold,
+        fontSize = baseSize * 2.0  // 32sp
+    ),
+    displayMedium = TextStyle(
+        fontFamily = PoppinsBold,
+        fontWeight = FontWeight.Bold,
+        fontSize = baseSize * 1.875  // 30sp
+    ),
+    displaySmall = TextStyle(
+        fontFamily = PoppinsBold,
+        fontWeight = FontWeight.Bold,
+        fontSize = baseSize * 1.75  // 28sp
+    ),
+    headlineLarge = TextStyle(
+        fontFamily = PoppinsBold,
+        fontWeight = FontWeight.Bold,
+        fontSize = baseSize * 1.625  // 26sp
+    ),
+    headlineMedium = TextStyle(
+        fontFamily = PoppinsBold,
+        fontWeight = FontWeight.Bold,
+        fontSize = baseSize * 1.5  // 24sp
+    ),
+    headlineSmall = TextStyle(
+        fontFamily = PoppinsBold,
+        fontWeight = FontWeight.Bold,
+        fontSize = baseSize * 1.375  // 22sp
+    ),
     titleLarge = TextStyle(
-        fontFamily = FontFamily.Default,
+        fontFamily = PoppinsBold,
+        fontWeight = FontWeight.Bold,
+        fontSize = baseSize * 1.25  // 20sp
+    ),
+    titleMedium = TextStyle(
+        fontFamily = PoppinsBold,
+        fontWeight = FontWeight.Bold,
+        fontSize = baseSize * 1.125  // 18sp
+    ),
+    titleSmall = TextStyle(
+        fontFamily = PoppinsBold,
+        fontWeight = FontWeight.Bold,
+        fontSize = baseSize * 1.0  // 16sp
+    ),
+    bodyLarge = TextStyle(
+        fontFamily = PoppinsRegular,
         fontWeight = FontWeight.Normal,
-        fontSize = 22.sp,
-        lineHeight = 28.sp,
-        letterSpacing = 0.sp
+        fontSize = baseSize * 0.9375  // 15sp
+    ),
+    bodyMedium = TextStyle(
+        fontFamily = PoppinsRegular,
+        fontWeight = FontWeight.Normal,
+        fontSize = baseSize * 0.875  // 14sp
+    ),
+    bodySmall = TextStyle(
+        fontFamily = PoppinsRegular,
+        fontWeight = FontWeight.Normal,
+        fontSize = baseSize * 0.8125  // 13sp
+    ),
+    labelLarge = TextStyle(
+        fontFamily = PoppinsBold,
+        fontWeight = FontWeight.Bold,
+        fontSize = baseSize * 0.75  // 12sp
+    ),
+    labelMedium = TextStyle(
+        fontFamily = PoppinsBold,
+        fontWeight = FontWeight.Bold,
+        fontSize = baseSize * 0.71875  // 11.5sp
     ),
     labelSmall = TextStyle(
-        fontFamily = FontFamily.Default,
-        fontWeight = FontWeight.Medium,
-        fontSize = 11.sp,
-        lineHeight = 16.sp,
-        letterSpacing = 0.5.sp
+        fontFamily = PoppinsBold,
+        fontWeight = FontWeight.Bold,
+        fontSize = baseSize * 0.6875  // 11sp
     )
-    */
 )

@@ -8,7 +8,11 @@ import java.time.LocalDate
 import javax.inject.Inject
 
 class AddUserExtraDataUseCases @Inject constructor(private val repository: TaskFireStoreSourceRepository) {
-    suspend fun execute(bday:LocalDate,userType:Boolean):Flow<ResultType<String>>{
-        return repository.addUserExtraData(bday, userType)
+    suspend fun execute(
+        data: UserData
+    ):Flow<ResultType<String>>{
+        return repository.addUserExtraData(
+            data
+        )
     }
 }

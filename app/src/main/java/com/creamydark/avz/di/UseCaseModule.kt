@@ -2,8 +2,8 @@ package com.creamydark.avz.di
 
 import com.creamydark.avz.data.datasource.TaskFireStoreSourceRepository
 import com.creamydark.avz.data.repository.GoogleClientSignInRepository
+import com.creamydark.avz.domain.usecase.UpdateFavoriteWordsUseCase
 import com.creamydark.avz.domain.usecase.AddUserExtraDataUseCases
-import com.creamydark.avz.domain.usecase.CheckIfUserDataExistUseCases
 import com.creamydark.avz.domain.usecase.FirebaseAuthListenerUseCase
 import com.creamydark.avz.domain.usecase.GetUserExtraDataUsecase
 import com.creamydark.avz.domain.usecase.SignInUserUsingCredentialsUseCases
@@ -32,11 +32,6 @@ object UseCaseModule {
     }
     @Provides
     @Singleton
-    fun provideCheckIfUserDataExistUseCases(repository: TaskFireStoreSourceRepository): CheckIfUserDataExistUseCases {
-        return CheckIfUserDataExistUseCases(repository)
-    }
-    @Provides
-    @Singleton
     fun provideSignInUserUsingCredentialsUseCases(repository: GoogleClientSignInRepository): SignInUserUsingCredentialsUseCases{
         return SignInUserUsingCredentialsUseCases(repository)
     }
@@ -57,5 +52,10 @@ object UseCaseModule {
     @Singleton
     fun provideSignOutUseCase(repository: GoogleClientSignInRepository): SignOutUseCase{
         return SignOutUseCase(repository)
+    }
+    @Provides
+    @Singleton
+    fun provideAddFavoriteWordsUseCase(repository: TaskFireStoreSourceRepository): UpdateFavoriteWordsUseCase {
+        return UpdateFavoriteWordsUseCase(repository)
     }
 }

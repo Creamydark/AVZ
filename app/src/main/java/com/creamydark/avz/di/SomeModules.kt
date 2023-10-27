@@ -2,17 +2,12 @@ package com.creamydark.avz.di
 
 import android.content.Context
 import com.creamydark.avz.TextToSpeechManager
-import com.creamydark.avz.data.repository.GoogleClientSignInRepository
-import com.creamydark.avz.data.repository.GoogleClientSignInRepositoryImpl
+import com.creamydark.avz.domain.some_api.JoYuriAuthenticationAPI
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.ktx.Firebase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -41,6 +36,15 @@ object SomeModules {
     @Singleton
     fun provideTextToSpeechManager(context: Context):TextToSpeechManager{
         return TextToSpeechManager(context = context)
+    }
+
+
+    @Provides
+    @Singleton
+    fun provideJoYuriAuthenticationAPI(auth: FirebaseAuth):JoYuriAuthenticationAPI{
+        return JoYuriAuthenticationAPI(
+
+        )
     }
 
     @Provides

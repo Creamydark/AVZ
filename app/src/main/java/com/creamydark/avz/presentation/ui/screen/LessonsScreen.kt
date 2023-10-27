@@ -17,9 +17,11 @@ import androidx.compose.material.icons.filled.Face
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.Card
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -71,20 +73,17 @@ fun LessonsScreen(){
 
 @Composable
 fun LessonListItem(title:String,desc:String){
-    Card(modifier = Modifier
+    ElevatedCard(modifier = Modifier
         .fillMaxWidth()) {
-        Text(
-            modifier = Modifier.padding(16.dp),
-            text = title,
-            fontFamily = PoppinsBold,
-            fontSize = 18.sp
-        )
-        Text(
-            modifier = Modifier.padding( start = 16.dp, end = 16.dp, bottom = 16.dp),
-            text = "\u2022 $desc",
-            fontSize = 14.sp,
-            fontFamily = PoppinsRegular
-
-        )
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleMedium
+            )
+            Text(
+                text = desc,
+                style = MaterialTheme.typography.bodyMedium
+            )
+        }
     }
 }

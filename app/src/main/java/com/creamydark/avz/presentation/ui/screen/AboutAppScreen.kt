@@ -19,7 +19,7 @@ fun AboutAppScreen(){
         Column(Modifier.fillMaxSize()) {
             LazyColumn(modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 22.dp)){
+                .padding(horizontal = 16.dp)){
                 item {
                     LessonListItem(title = "Title Approval", desc = "Name : Joshua O. Aquino\nDanilo V. Villoso JR.\nMark C. Zoleta")
                     Spacer(modifier = Modifier.size(16.dp))

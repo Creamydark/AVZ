@@ -4,114 +4,75 @@ import android.util.Log
 import com.creamydark.avz.domain.ResultType
 import com.creamydark.avz.domain.model.UserData
 import com.creamydark.avz.domain.model.WordsDataModel
-import com.google.firebase.auth.FirebaseAuth
+import com.creamydark.avz.domain.some_api.JoYuriAuthenticationAPI
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.toObject
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.tasks.await
-import java.time.LocalDate
 import javax.inject.Inject
 
 class TaskFireStoreSourceRepositoryImpl @Inject constructor(
     private val db : FirebaseFirestore,
-    private val auth: FirebaseAuth
+    private val joYuriAuthenticationAPI: JoYuriAuthenticationAPI
 ):TaskFireStoreSourceRepository {
 
 
+    override suspend fun getUserExtraData(email:String): Flow<ResultType<UserData?>> {
+        return callbackFlow {
+            val collection = db.collection("users").document(email)
+            val reg = collection.addSnapshotListener { value, error ->
+                val data = value?.toObject<UserData>()
+                trySend(ResultType.success(data))
+            }
+            awaitClose{
+                reg.remove()
+            }
+        }
+    }
 
-    override suspend fun getUserExtraData(uid: String): Flow<ResultType<UserData>> {
+    override suspend fun addUserExtraData(data: UserData): Flow<ResultType<String>> {
         return callbackFlow {
             trySend(ResultType.loading())
-            val collection = db.collection("users").document(uid)
-            val reg = collection.addSnapshotListener { value, error ->
-                value?.let {
-                    valuedawd->
-                    val data = valuedawd.toObject<UserData>()
-                    if (data != null){
-                        trySend(
-                            ResultType.success(data = data)
-                        )
-                        Log.d("TaskFireStoreSourceRepositoryImpl", "getUserExtraData:${data.name} ${data.isStudent}")
-                    }else{
-                        trySend(
-                            ResultType.error(error?.message.toString())
-                        )
-                    }
-                }
-            }
-            awaitClose {
-                reg.remove()
-            }
-        }
-    }
-
-    override suspend fun checkUserDataExist(uid: String): Flow<ResultType<Boolean>> {
-        return callbackFlow {
-            val collection = db.collection("users")
-            val reg = collection.document(uid).addSnapshotListener { value, error ->
-                value?.let {
-                    trySend(ResultType.success(it.exists()))
-                }
-            }
-            awaitClose {
-                reg.remove()
-            }
-
-        }
-    }
-
-
-
-    override suspend fun addUserExtraData(
-        bday: LocalDate,
-        userType: Boolean
-    ): Flow<ResultType<String>> {
-        return callbackFlow {
+            val email = joYuriAuthenticationAPI.getEmail()
             try {
-                auth.currentUser?.let {
-                        userrrr ->
-                    val uid = userrrr.uid
-                    val name = userrrr.displayName
-                    val email = userrrr.email
-                    val data = UserData(
-                        email = email,
-                        birthday = bday.toString(),
-                        isStudent = userType,
-                        name = name
-                    )
-                    val c = db.collection("users").document(uid).set(data)
-                    c.await()
-                    trySend(ResultType.success("Register Successfully"))
-                }
+                val collection = db.collection("users")
+                val document = collection.document(email!!).set(data)
+                document.await()
+                trySend(ResultType.success("Successfully Update"))
                 close()
             }catch (e:Throwable){
-                trySend(ResultType.error(e.message.toString()))
+                trySend(
+                    ResultType.error(e)
+                )
                 close()
             }
+            awaitClose ()
         }
     }
 
-    override suspend fun addWordsToFirestore(data: WordsDataModel): Flow<ResultType<String>> {
+    override suspend fun addWordsToFirestore(data: WordsDataModel?): Flow<ResultType<String>> {
         return callbackFlow {
             try {
-                val shet = db.collection("wordsss").document(data.title).set(data)
-                shet.await()
-                trySend(ResultType.success("Upload Successfully"))
-                close()
+                if (data!=null){
+                    val shet = db.collection("Vocabulary-Words").document().set(data)
+                    shet.await()
+                    trySend(ResultType.success("Upload Successfully"))
+                    close()
+                }else{
+                    throw Exception("Text-Fields cannot be blank or invalid")
+                }
             }catch (e :Throwable){
-                trySend(ResultType.error(e.message.toString()))
+                trySend(ResultType.error(e))
                 close()
             }
             awaitClose()
         }
     }
-
     override suspend fun getWordsFromFirestore(): Flow<List<WordsDataModel>> {
         return callbackFlow {
-            val collection = db.collection("wordsss")
+            val collection = db.collection("Vocabulary-Words")
             val reg = collection.addSnapshotListener { value, error ->
                 value?.let {
                     querySnapshot ->
@@ -122,6 +83,40 @@ class TaskFireStoreSourceRepositoryImpl @Inject constructor(
             awaitClose{
                 reg.remove()
             }
+        }
+    }
+
+    override suspend fun updateFavoriteWords(email: String, title: String): Flow<ResultType<String>> {
+        return callbackFlow {
+            val favoriteWords = joYuriAuthenticationAPI.getFavoriteWords()?:emptyList()
+            val newFavoriteWords = favoriteWords.toMutableList()
+            try {
+                if (!newFavoriteWords.contains(title)){
+                    newFavoriteWords.add(title)
+                    val collection = db.collection("users").document(email)
+                    val data = hashMapOf(
+                        "favoriteWords" to newFavoriteWords
+                    )
+                    val reg = collection.update("favoriteWords",newFavoriteWords)
+                    reg.await()
+                    trySend(ResultType.success("Successfully Updated"))
+                    close()
+                }else{
+                    newFavoriteWords.remove(title)
+                    val collection = db.collection("users").document(email)
+                    val data = hashMapOf(
+                        "favoriteWords" to newFavoriteWords
+                    )
+                    val reg = collection.update("favoriteWords",newFavoriteWords)
+                    reg.await()
+                    trySend(ResultType.success("Successfully Updated"))
+                    close()
+                }
+            }catch (e :Throwable){
+                trySend(ResultType.error(e))
+                close()
+            }
+            awaitClose {  }
         }
     }
 

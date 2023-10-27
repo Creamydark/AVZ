@@ -7,5 +7,5 @@ import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 class GetUserExtraDataUsecase @Inject constructor(private val repo : TaskFireStoreSourceRepository) {
-    suspend fun execute(uid:String):Flow<ResultType<UserData>> = repo.getUserExtraData(uid)
+    suspend fun execute(email:String):Flow<ResultType<UserData?>> = repo.getUserExtraData(email)
 }

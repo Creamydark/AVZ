@@ -5,39 +5,39 @@ import androidx.lifecycle.viewModelScope
 import com.creamydark.avz.TextToSpeechManager
 import com.creamydark.avz.domain.ResultType
 import com.creamydark.avz.domain.model.WordsDataModel
+import com.creamydark.avz.domain.some_api.JoYuriAuthenticationAPI
+import com.creamydark.avz.domain.usecase.UpdateFavoriteWordsUseCase
 import com.creamydark.avz.domain.usecase.WordsFirestoreUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class WordScrollViewModel @Inject constructor(
     private val wordsFirestoreUseCase: WordsFirestoreUseCase,
-    private val textToSpeechManager: TextToSpeechManager
+    private val textToSpeechManager: TextToSpeechManager,
+    private val updateFavoriteWordsUseCase: UpdateFavoriteWordsUseCase,
+    joYuriAuthenticationAPI: JoYuriAuthenticationAPI
 ):ViewModel() {
-
-
 
     private val wordsList = MutableStateFlow<List<WordsDataModel>>(emptyList())
     val _wordsList = wordsList.asStateFlow()
 
-    private val uploadResult = MutableStateFlow<ResultType<String>>(ResultType.loading())
-    val _uploadResult = uploadResult.asStateFlow()
+    val email = joYuriAuthenticationAPI.getEmail()
 
-    private val word_tf = MutableStateFlow("")
-    private val desc_tf = MutableStateFlow("")
-    private val example_tf = MutableStateFlow("")
+    val userData = joYuriAuthenticationAPI.userData
 
-    val _word_tf =word_tf.asStateFlow()
-    val _desc_tf =desc_tf.asStateFlow()
-    val _example_tf =example_tf.asStateFlow()
+    private val _uploadResult = MutableStateFlow<ResultType<String>>(ResultType.loading())
+    private val _addFavoriteResult = MutableStateFlow<ResultType<String>>(ResultType.loading())
 
+    val uploadResult = _uploadResult.asStateFlow()
+    val addFavoriteResult = _addFavoriteResult.asStateFlow()
 
     init {
-
-
         viewModelScope.launch {
             wordsFirestoreUseCase.getAllWords().collect{
                 result ->
@@ -50,25 +50,38 @@ class WordScrollViewModel @Inject constructor(
         textToSpeechManager.speak(text)
     }
 
-    fun editWordTF(text:String) {
-        word_tf.value = text
-    }
-    fun editDescTF(text:String) {
-        desc_tf.value = text
-    }
-    fun editExampleTF(text:String) {
-        example_tf.value = text
-    }
-    fun uploadWordsToFirestore(){
-        val data = WordsDataModel(
-            title = word_tf.value,
-            description = desc_tf.value,
-            example = example_tf.value
-        )
+
+    fun uploadWordsToFirestore(
+        word:String,description:String,example:String
+    ){
+        val data = if (word.isNotBlank()&&description.isNotBlank()&&example.isNotBlank()){
+            WordsDataModel(
+                title = word,
+                description = description,
+                example = example,
+                uploader = email?:"none"
+            )
+        }else{
+            null
+        }
         viewModelScope.launch {
             wordsFirestoreUseCase.upload(data).collect{
                 result->
-                uploadResult.value = result
+                _uploadResult.value = result
+            }
+        }
+    }
+
+    fun addFavorites(
+        title:String
+    ){
+        email?.let {
+            emailll->
+            viewModelScope.launch(Dispatchers.IO) {
+                updateFavoriteWordsUseCase(emailll, title).collectLatest {
+                    result->
+                    _addFavoriteResult.value = result
+                }
             }
         }
     }

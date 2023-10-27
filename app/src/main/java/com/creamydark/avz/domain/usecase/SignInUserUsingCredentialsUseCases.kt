@@ -7,6 +7,6 @@ import javax.inject.Inject
 
 class SignInUserUsingCredentialsUseCases @Inject constructor(private val repository: GoogleClientSignInRepository) {
     suspend fun signIn(account: GoogleSignInAccount): Flow<Result<String>> {
-        return repository.signInWithCredentials(account)
+        return repository.signInFirebaseAuthWithCredentials(account)
     }
 }

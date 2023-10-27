@@ -6,30 +6,23 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.navigation
 import com.creamydark.avz.presentation.ui.screen.LoginScreen3
-import com.creamydark.avz.presentation.ui.screen.RegisterPart2Screen
 import com.creamydark.avz.presentation.ui.screen.SplashScreen
-import com.creamydark.avz.presentation.viewmodels.RegisterViewModel
+import com.creamydark.avz.presentation.ui.screen.UserTypeSelectionScreen
 import com.creamydark.avz.presentation.viewmodels.RootNavGraphViewModel
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.common.api.ApiException
-import kotlinx.coroutines.delay
-import javax.inject.Inject
 
 
 @Composable
@@ -55,8 +48,8 @@ fun SetUpNavGraph (navHostController: NavHostController, viewmodel: RootNavGraph
     }
 
     val isAuthentacated by viewmodel._isAuthenticated.collectAsState()
+    val userData by viewmodel._userData.collectAsState()
 
-    val googleAccountDataModel by viewmodel._googleAccountDataModel.collectAsState()
 
     val errorSignIn by viewmodel._errorSignInWithCreds.collectAsState()
 
@@ -64,57 +57,51 @@ fun SetUpNavGraph (navHostController: NavHostController, viewmodel: RootNavGraph
     NavHost(
         modifier = Modifier.fillMaxSize(),
         navController = navHostController,
-        startDestination = Screen.Splash.route
+        startDestination = RootNavScreens.Splash.route
     ){
-        composable(route = Screen.Splash.route){
-           SplashScreen(navHostController){
+        composable(route = RootNavScreens.Splash.route){
+           SplashScreen(){
+
            }
         }
-        composable(route = Screen.UserLoginScreen.route){
+        composable(route = "register_screen"){
+           UserTypeSelectionScreen(
+               onUploadCliced = {
+//                   Log.d("SetUpNavGraph", "SetUpNavGraph: $it")
+                   viewmodel.uploadDataToFirestore(it)
+               }
+           )
+        }
+        composable(route = RootNavScreens.UserLoginRootNavScreens.route){
             LoginScreen3{
                 signInLauncher.launch(viewmodel.googleSignInAccount().signInIntent)
             }
         }
-        composable(route = Screen.HomeGraph.route){
+        composable(route = RootNavScreens.HomeGraph.route){
             HomeGraphv2()
         }
-        composable(route = Screen.UserRegisterScreen.route){
-            val viewModel = hiltViewModel<RegisterViewModel>()
-            RegisterPart2Screen(navHostController,viewModel)
-        }
     }
-
-    if (isAuthentacated) {
-        // User is logged in, check registration status
-//        val isRegistered = firestoreHelper.checkRegistrationStatus(user.uid)
-        val isRegistered = viewmodel._userdataExistState.collectAsState().value
-        if (isRegistered) {
-            // User is registered, navigate to the home screen
-//            HomeScreen()
-            navHostController.navigate(route = Screen.HomeGraph.route){
+    if (isAuthentacated){
+        if (userData!=null){
+            navHostController.navigate(route = RootNavScreens.HomeGraph.route){
                 launchSingleTop = true
-                popUpTo(route = Screen.Splash.route){
+                popUpTo(route = RootNavScreens.UserLoginRootNavScreens.route){
                     inclusive = true
                 }
             }
-        } else {
-            // User is not registered, navigate to the registration screen
-//            RegistrationScreen()
-            navHostController.navigate(route = Screen.UserRegisterScreen.route){
+        }else{
+            navHostController.navigate(route = "register_screen"){
                 launchSingleTop = true
-                popUpTo(route = Screen.Splash.route){
+                popUpTo(route = RootNavScreens.UserLoginRootNavScreens.route){
                     inclusive = true
-
                 }
             }
         }
-    } else {
-        // User is not authenticated, show a login screen or other authentication options.
-        navHostController.navigate(route = Screen.UserLoginScreen.route){
+    }else{
+        navHostController.navigate(route = RootNavScreens.UserLoginRootNavScreens.route){
             launchSingleTop = true
-            popUpTo(route = Screen.Splash.route){
+            popUpTo(route = RootNavScreens.Splash.route){
                 inclusive = true
-
             }
         }
     }

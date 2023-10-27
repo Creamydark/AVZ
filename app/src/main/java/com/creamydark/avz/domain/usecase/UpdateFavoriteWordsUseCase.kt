@@ -5,10 +5,10 @@ import com.creamydark.avz.domain.ResultType
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
-class CheckIfUserDataExistUseCases @Inject constructor(
+class UpdateFavoriteWordsUseCase @Inject constructor(
     private val repository: TaskFireStoreSourceRepository
 ) {
-    suspend fun check(uid:String): Flow<ResultType<Boolean>> {
-        return repository.checkUserDataExist(uid = uid)
+    suspend operator fun invoke(email:String,title:String):Flow<ResultType<String>>{
+        return repository.updateFavoriteWords(email,title)
     }
 }

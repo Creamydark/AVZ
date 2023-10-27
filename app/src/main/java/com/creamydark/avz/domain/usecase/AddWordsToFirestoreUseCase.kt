@@ -8,7 +8,7 @@ import java.time.format.ResolverStyle
 import javax.inject.Inject
 
 class WordsFirestoreUseCase @Inject constructor(private val repository: TaskFireStoreSourceRepository) {
-    suspend fun upload(date :WordsDataModel): Flow<ResultType<String>>{
+    suspend fun upload(date :WordsDataModel?): Flow<ResultType<String>>{
         return repository.addWordsToFirestore(date)
     }
 

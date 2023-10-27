@@ -1,32 +1,26 @@
 package com.creamydark.avz.presentation.ui.screen
 
-import android.util.Log
-import android.widget.Toast
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavHostController
-import com.creamydark.avz.domain.ResultType
-import com.creamydark.avz.presentation.viewmodels.WordScrollViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun UploadWordsScreen(navHostController: NavHostController,viewmodel : WordScrollViewModel){
+fun UploadWordsScreen(
+    onUploadButton:(word:String,description:String,example:String)->Unit
+){
 
-
-    val uploadResult by viewmodel._uploadResult.collectAsState()
-
-    val context = LocalContext.current
-
-    when(uploadResult){
+    /*when(uploadResult){
         is ResultType.Error -> {
             val message = (uploadResult as ResultType.Error).message
             Toast.makeText(context,message,Toast.LENGTH_SHORT).show()
@@ -40,18 +34,25 @@ fun UploadWordsScreen(navHostController: NavHostController,viewmodel : WordScrol
             Log.d("UploadWordsScreen", "Success:${message} ")
             Toast.makeText(context,message,Toast.LENGTH_SHORT).show()
         }
-    }
+    }*/
 
-    val word by viewmodel._word_tf.collectAsState()
-    val desc by viewmodel._desc_tf.collectAsState()
-    val example by viewmodel._example_tf.collectAsState()
+
+
+    var word by remember {
+        mutableStateOf("")
+    }
+    var description by remember {
+        mutableStateOf("")
+    }
+    var example by remember {
+        mutableStateOf("")
+    }
 
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp)
     ) {
-
         OutlinedTextField(
             modifier = Modifier
                 .fillMaxWidth()
@@ -59,7 +60,7 @@ fun UploadWordsScreen(navHostController: NavHostController,viewmodel : WordScrol
                 .weight(1.5f),
             value = word,
             onValueChange = {
-                viewmodel.editWordTF(text = it)
+                word = it
             },
             label = {
                 Text(text = "Word")
@@ -71,9 +72,9 @@ fun UploadWordsScreen(navHostController: NavHostController,viewmodel : WordScrol
                 .fillMaxWidth()
                 .padding(8.dp)
                 .weight(2f),
-            value = desc,
+            value = description,
             onValueChange = {
-                viewmodel.editDescTF(text = it)
+                description = it
             },
             label = {
                 Text(text = "Description")
@@ -87,19 +88,19 @@ fun UploadWordsScreen(navHostController: NavHostController,viewmodel : WordScrol
                 .weight(4f),
             value = example,
             onValueChange = {
-                viewmodel.editExampleTF(text = it)
+               example = it
             },
             label = {
                 Text(text = "Example")
             },
             maxLines = 6
         )
-
         Spacer(modifier = Modifier.height(16.dp))
-
         Button(
             onClick = {
-                viewmodel.uploadWordsToFirestore()
+                onUploadButton(
+                    word, description, example
+                )
             },
             modifier = Modifier
                 .fillMaxWidth()
@@ -111,8 +112,23 @@ fun UploadWordsScreen(navHostController: NavHostController,viewmodel : WordScrol
     }
 }
 
-@Preview(showBackground = true)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun UploadWordsScreenPrev(){
-//    UploadWordsScreen()
+private fun SomeAlert(title:String,text:String,onDismiss:()->Unit) {
+    AlertDialog(
+        onDismissRequest = {
+            onDismiss()
+        },
+        confirmButton = {
+            TextButton(onClick = { onDismiss() }) {
+                Text(text = "Okay")
+            }
+        },
+        title = {
+            Text(text = title, style = MaterialTheme.typography.titleSmall)
+        },
+        text = {
+            Text(text = text, style = MaterialTheme.typography.bodySmall)
+        },
+    )
 }

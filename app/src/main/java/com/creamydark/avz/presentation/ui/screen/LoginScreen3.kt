@@ -57,15 +57,14 @@ fun LoginScreen3 (loginClicked:()->Unit) {
             )){
             Column(
                 Modifier
-                    .fillMaxSize()
-                    .align(Alignment.TopCenter)) {
+                    .align(Alignment.Center)) {
                 Spacer(modifier = Modifier.size(40.dp))
                 Text(
                     modifier = Modifier
                         .fillMaxWidth(),
                     text = "Log in to AVZ",
                     fontSize = 25.sp,
-                    fontFamily = PoppinsBold,
+                    style = MaterialTheme.typography.headlineMedium,
                     textAlign = TextAlign.Center
                 )
                 Spacer(modifier = Modifier.size(22.dp))
@@ -75,10 +74,9 @@ fun LoginScreen3 (loginClicked:()->Unit) {
                         .padding(horizontal = 16.dp),
                     text = stringResource(id = R.string.login_below_title_text),
                     textAlign = TextAlign.Center,
-                    fontFamily = PoppinsRegular
+                    style = MaterialTheme.typography.bodyMedium
                 )
             }
-
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -108,8 +106,7 @@ fun LoginScreen3 (loginClicked:()->Unit) {
                     Spacer(modifier = Modifier.width(16.dp))
                     Text(
                         text = "Sign in using Google",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.primary
+                        style = MaterialTheme.typography.titleSmall
                     )
                 }
             }

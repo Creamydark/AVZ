@@ -2,21 +2,21 @@ package com.creamydark.avz.presentation.viewmodels
 
 
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.creamydark.avz.domain.ResultType
-import com.creamydark.avz.domain.model.GoogleAccountDataModel
-import com.creamydark.avz.domain.usecase.CheckIfUserDataExistUseCases
+import com.creamydark.avz.domain.model.UserData
+import com.creamydark.avz.domain.some_api.JoYuriAuthenticationAPI
+import com.creamydark.avz.domain.usecase.AddUserExtraDataUseCases
 import com.creamydark.avz.domain.usecase.FirebaseAuthListenerUseCase
 import com.creamydark.avz.domain.usecase.SignInUserUsingCredentialsUseCases
-import com.creamydark.avz.domain.usecase.SignOutUseCase
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -26,56 +26,53 @@ class RootNavGraphViewModel @Inject constructor(
     private val firebaseAuthListenerUseCase: FirebaseAuthListenerUseCase,
     private val googleSignInClient: GoogleSignInClient,
     private val signInUserUsingCredentialsUseCases: SignInUserUsingCredentialsUseCases,
-    private val signOutUseCase: SignOutUseCase,
-    private val checkIfUserDataExistUseCases: CheckIfUserDataExistUseCases
+    private val addUserExtraDataUseCases: AddUserExtraDataUseCases,
+    private val joYuriAuthenticationAPI: JoYuriAuthenticationAPI
 ):ViewModel() {
 
-    private val googleAccountDataModel = MutableStateFlow(GoogleAccountDataModel())
-    val _googleAccountDataModel = googleAccountDataModel.asStateFlow()
-
-    private val isAuthenticated = MutableStateFlow(false)
+    private val isAuthenticated = joYuriAuthenticationAPI.isClientAuthenticated
     val _isAuthenticated = isAuthenticated.asStateFlow()
+
+    private val userData = joYuriAuthenticationAPI.userData
+    val _userData = userData.asStateFlow()
 
     private val errorSignInWithCreds = MutableStateFlow("")
     val _errorSignInWithCreds = errorSignInWithCreds.asStateFlow()
 
-    private val userdataExistState = MutableStateFlow(true)
-    val _userdataExistState = userdataExistState.asStateFlow()
-
     init {
         viewModelScope.launch(Dispatchers.IO) {
-            firebaseAuthListenerUseCase.invoke().collectLatest {
+            firebaseAuthListenerUseCase.invoke()
+        }
+    }
+
+    fun uploadDataToFirestore(userType: Boolean){
+        viewModelScope.launch(Dispatchers.IO) {
+            val email = joYuriAuthenticationAPI.getEmail()
+            val uid = joYuriAuthenticationAPI.getUid()
+            val name = joYuriAuthenticationAPI.getName()
+            val data = UserData(
+                student = userType,
+                uid = uid,
+                email = email,
+                name = name
+            )
+            addUserExtraDataUseCases.execute(data = data).collect(){
                 result ->
                 when(result){
                     is ResultType.Error -> {
-                        isAuthenticated.value = false
+                        Log.d("RootNavGraphViewModel", "uploadDataToFirestore: Error")
                     }
                     ResultType.Loading -> {
-                        isAuthenticated.value = false
+
                     }
                     is ResultType.Success -> {
-                        isAuthenticated.value = true
-                        checkIfUserDataExistUseCases.check(result.data).collect{
-                                resultData ->
-                            when(resultData){
-                                is ResultType.Error -> {
-                                    userdataExistState.value = false
-                                }
-                                ResultType.Loading -> {
-                                }
-                                is ResultType.Success -> {
-                                    userdataExistState.value = resultData.data
-                                }
-                            }
-                        }
+                        Log.d("RootNavGraphViewModel", "uploadDataToFirestore: success")
                     }
                 }
             }
         }
     }
-
     fun googleSignInAccount() = googleSignInClient
-
     fun signInWithGoogle(account:GoogleSignInAccount){
         viewModelScope.launch(Dispatchers.IO) {
             signInUserUsingCredentialsUseCases.signIn(account = account).collect{
@@ -87,11 +84,6 @@ class RootNavGraphViewModel @Inject constructor(
                     errorSignInWithCreds.value = it.message.toString()
                 }
             }
-        }
-    }
-    fun signOut(){
-        viewModelScope.launch {
-            signOutUseCase.signOut()
         }
     }
 
