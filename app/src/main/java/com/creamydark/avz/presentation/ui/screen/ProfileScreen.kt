@@ -1,11 +1,9 @@
 package com.creamydark.avz.presentation.ui.screen
 
 import android.net.Uri
-import androidx.compose.foundation.background
+import android.util.Log
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -16,14 +14,12 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Send
 import androidx.compose.material.icons.outlined.AccountBox
+import androidx.compose.material.icons.outlined.CloudUpload
+import androidx.compose.material.icons.outlined.Create
 import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.outlined.PostAdd
 import androidx.compose.material.icons.outlined.Send
-import androidx.compose.material.icons.rounded.Info
-import androidx.compose.material.icons.rounded.Send
-import androidx.compose.material3.Card
-import androidx.compose.material3.Divider
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -44,6 +40,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.creamydark.avz.R
 import com.creamydark.avz.presentation.viewmodels.ProfileViewModel
@@ -51,11 +48,13 @@ import com.creamydark.avz.presentation.viewmodels.ProfileViewModel
 @Composable
 fun ProfileScreen(viewModel:ProfileViewModel,onclicked:(Int)->Unit) {
 
-    val profileUri by viewModel._photoUri.collectAsState()
+    val currentUserData by viewModel.currentUserData.collectAsStateWithLifecycle()
 
-    val name by viewModel._name.collectAsState()
+    val profileUri = currentUserData?.photoUri
 
-    val email by viewModel._email.collectAsState()
+    val name = currentUserData?.displayName
+
+    val email = currentUserData?.email
 
     var userTypeText by remember {
         mutableStateOf("")
@@ -76,15 +75,20 @@ fun ProfileScreen(viewModel:ProfileViewModel,onclicked:(Int)->Unit) {
         .fillMaxSize()
         .padding(horizontal = 16.dp)) {
         ProfileHeader(profileUri = profileUri, name = name?:"", desc = "$email\n${userTypeText}")
-
+        Log.d("ProfileScreen", "ProfileScreen: ${profileUri?.toString()}")
         ElevatedCard {
             LazyColumn{
                 userData?.student?.let {
                         usertype ->
                     if (!usertype){
                         item {
-                            ProfileListItem(title = "Upload Words", icon = Icons.Outlined.Send) {
+                            ProfileListItem(title = "Upload Words", icon = Icons.Outlined.CloudUpload) {
                                 onclicked(0)
+                            }
+                        }
+                        item {
+                            ProfileListItem(title = "Post Announcements", icon = Icons.Outlined.PostAdd) {
+                                onclicked(1)
                             }
                         }
                     }
@@ -92,36 +96,18 @@ fun ProfileScreen(viewModel:ProfileViewModel,onclicked:(Int)->Unit) {
 
                 item {
                     ProfileListItem(title = "About", icon = Icons.Outlined.Info) {
-                        onclicked(1)
+                        onclicked(2)
 
                     }
                 }
                 item {
                     ProfileListItem(title = "Sign Out", icon = Icons.Outlined.AccountBox) {
-                        onclicked(2)
+                        onclicked(3)
 
                     }
                 }
             }
         }
-        /*LazyColumn(modifier = Modifier.fillMaxWidth(), contentPadding = PaddingValues(16.dp)){
-            item {
-                userData?.student?.let {
-                    usertype ->
-                    if (!usertype){
-                        ProfileListItem(title = "Upload Words", desc = "Add vocabulary words into database."){
-                            onclicked(0)
-                        }
-                    }
-                }
-                ProfileListItem(title = "About", desc = "Information's about AVZ"){
-                    onclicked(1)
-                }
-                ProfileListItem(title = "Sign out", desc = "Exit and log out current user."){
-                    onclicked(2)
-                }
-            }
-        }*/
     }
 }
 @Composable

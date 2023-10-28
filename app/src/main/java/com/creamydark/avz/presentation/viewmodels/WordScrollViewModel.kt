@@ -1,31 +1,39 @@
 package com.creamydark.avz.presentation.viewmodels
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.creamydark.avz.TextToSpeechManager
 import com.creamydark.avz.domain.ResultType
 import com.creamydark.avz.domain.model.WordsDataModel
 import com.creamydark.avz.domain.some_api.JoYuriAuthenticationAPI
+import com.creamydark.avz.domain.usecase.GenerateRandomWordsUseCase
 import com.creamydark.avz.domain.usecase.UpdateFavoriteWordsUseCase
-import com.creamydark.avz.domain.usecase.WordsFirestoreUseCase
+import com.creamydark.avz.domain.usecase.AddWordsFirestoreUseCase
+import com.creamydark.avz.domain.usecase.GetAllWordsFromFirestoreUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class WordScrollViewModel @Inject constructor(
-    private val wordsFirestoreUseCase: WordsFirestoreUseCase,
+    private val addWordsFirestoreUseCase: AddWordsFirestoreUseCase,
     private val textToSpeechManager: TextToSpeechManager,
     private val updateFavoriteWordsUseCase: UpdateFavoriteWordsUseCase,
+    private val generateRandomWordsUseCase: GenerateRandomWordsUseCase,
+    private val getAllWordsFromFirestoreUseCase: GetAllWordsFromFirestoreUseCase,
     joYuriAuthenticationAPI: JoYuriAuthenticationAPI
 ):ViewModel() {
 
-    private val wordsList = MutableStateFlow<List<WordsDataModel>>(emptyList())
+    private val wordsList = MutableStateFlow(listOf<WordsDataModel>())
     val _wordsList = wordsList.asStateFlow()
+
+
 
     val email = joYuriAuthenticationAPI.getEmail()
 
@@ -37,11 +45,46 @@ class WordScrollViewModel @Inject constructor(
     val uploadResult = _uploadResult.asStateFlow()
     val addFavoriteResult = _addFavoriteResult.asStateFlow()
 
+
+
+
     init {
-        viewModelScope.launch {
-            wordsFirestoreUseCase.getAllWords().collect{
+        viewModelScope.launch(Dispatchers.IO) {
+            getAllWordsFromFirestoreUseCase.invoke().collectLatest {
+                result->
+                wordsList.update {
+                    result
+                }
+            }
+            /*addWordsFirestoreUseCase.getAllWords().collect{
                 result ->
                 wordsList.value = result
+            }*/
+        }
+    }
+
+    fun generateKaseLastPageNa(){
+        viewModelScope.launch(Dispatchers.IO) {
+            for (a in 1..10){
+                generateRandomWordsUseCase.invoke().collectLatest {
+                        result->
+                    when(result){
+                        is ResultType.Error -> {
+                            val message = result.exception.message
+                            Log.d("WordScrollViewModel", "generateRandomWordsUseCase:Error $message")
+                        }
+                        ResultType.Loading -> {
+
+                        }
+                        is ResultType.Success -> {
+                            val data = result.data?:"Unknownnnnnn"
+
+                            val list = ArrayList(wordsList.value)
+                            list.add(WordsDataModel(title = data))
+                            wordsList.value = list
+                        }
+                    }
+                }
             }
         }
     }
@@ -65,7 +108,7 @@ class WordScrollViewModel @Inject constructor(
             null
         }
         viewModelScope.launch {
-            wordsFirestoreUseCase.upload(data).collect{
+            addWordsFirestoreUseCase.upload(data).collect{
                 result->
                 _uploadResult.value = result
             }

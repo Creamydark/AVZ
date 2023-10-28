@@ -1,10 +1,12 @@
 package com.creamydark.avz.presentation.ui.navgraphs
 
-import android.util.Log
-import androidx.compose.foundation.layout.Box
+import android.net.Uri
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.Email
@@ -30,7 +32,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -42,18 +43,24 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import coil.compose.AsyncImage
 import com.creamydark.avz.domain.ResultType
-import com.creamydark.avz.presentation.ui.customcomposables.OneTimeUserTypeSelectionDialog
+import com.creamydark.avz.domain.usecase.GetPostImageUseCase
+import com.creamydark.avz.presentation.ui.customcomposables.InstagramLikePostLayout
 import com.creamydark.avz.presentation.ui.screen.AboutAppScreen
 import com.creamydark.avz.presentation.ui.screen.FavoriteScreen
 import com.creamydark.avz.presentation.ui.screen.LessonsScreen
 import com.creamydark.avz.presentation.ui.screen.ProfileScreen
 import com.creamydark.avz.presentation.ui.screen.ScrollScrollKaScreen
+import com.creamydark.avz.presentation.ui.screen.UploadPostScreen
 import com.creamydark.avz.presentation.ui.screen.UploadWordsScreen
+import com.creamydark.avz.presentation.viewmodels.AnnouncementsViewModel
 import com.creamydark.avz.presentation.viewmodels.HomeGraphViewModel
 import com.creamydark.avz.presentation.viewmodels.ProfileViewModel
 import com.creamydark.avz.presentation.viewmodels.WordScrollViewModel
-import kotlinx.coroutines.launch
+import com.google.firebase.storage.FirebaseStorage
+import kotlinx.coroutines.tasks.await
+import javax.inject.Inject
 
 
 private data class NavigationItemModel(val route: String, val label: String, val icon: ImageVector)
@@ -64,6 +71,7 @@ fun HomeGraphv2(
     val wordScrollViewModel :WordScrollViewModel = hiltViewModel()
     val homeGraphViewModel :HomeGraphViewModel = hiltViewModel()
     val profileViewModel :ProfileViewModel = hiltViewModel()
+    val announcementsViewModel : AnnouncementsViewModel = hiltViewModel()
 
     val navHostController = rememberNavController()
 
@@ -74,15 +82,16 @@ fun HomeGraphv2(
         NavigationItemModel("profile", "Profile", Icons.Outlined.Person)
     )
 
-
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
 
     val currentRoute = currentRoute(navHostController)
 
+    val uploadPostResult by announcementsViewModel.resultUpload.collectAsStateWithLifecycle()
     val uploadResult: ResultType<String> by wordScrollViewModel.uploadResult.collectAsStateWithLifecycle(initialValue = ResultType.loading())
     val addFavoriteResult by wordScrollViewModel.addFavoriteResult.collectAsStateWithLifecycle(initialValue = ResultType.loading())
     val userData by wordScrollViewModel.userData.collectAsStateWithLifecycle()
+
     when(addFavoriteResult){
         is ResultType.Error -> {
             LaunchedEffect(key1 = addFavoriteResult ){
@@ -121,6 +130,21 @@ fun HomeGraphv2(
                     snackbarHostState.showSnackbar(message = data, withDismissAction = true)
                 }
             )
+        }
+    }
+    when(uploadPostResult){
+        is ResultType.Error -> {
+            LaunchedEffect(key1 = uploadPostResult){
+                snackbarHostState.showSnackbar(message = (uploadPostResult as ResultType.Error).exception.message?:"Unknown Error", withDismissAction = true)
+            }
+        }
+        ResultType.Loading -> {
+
+        }
+        is ResultType.Success -> {
+            LaunchedEffect(key1 = uploadPostResult){
+                snackbarHostState.showSnackbar(message = (uploadPostResult as ResultType.Success<String>).data, withDismissAction = true)
+            }
         }
     }
 
@@ -220,8 +244,42 @@ fun HomeGraphv2(
                 ScrollScrollKaScreen(viewModel = wordScrollViewModel)
             }
             composable("announcements_screen"){
-                Box(modifier = Modifier.fillMaxSize()){
-                    Text(modifier = Modifier.align(alignment = Alignment.Center), text = "Announcement Screen")
+                //announcementsViewModel
+                val postList by announcementsViewModel.postList.collectAsStateWithLifecycle()
+                LazyColumn(modifier = Modifier.fillMaxSize()){
+                    items(
+                        postList,
+                        key = {
+                            it.timestamp
+                        },
+                    ){
+                        item->
+                        var image by remember {
+                            mutableStateOf<Uri?>(null)
+                        }
+                        val ref = "POSTS-ANNOUNCEMENTS/${item.username}/${item.timestamp}/image-post.jpg"
+                        LaunchedEffect(key1 = item.timestamp ){
+                            announcementsViewModel.getPostImageUseCase().invoke(ref).apply {
+                                when(this){
+                                    is ResultType.Error -> {}
+                                    ResultType.Loading -> {}
+                                    is ResultType.Success -> {
+                                        image = this.data
+                                    }
+                                }
+                            }
+                        }
+//                        AsyncImage(modifier = Modifier.fillMaxWidth(), model = image, contentDescription = "")
+                        InstagramLikePostLayout(
+                            username = item.username,
+                            caption = item.caption,
+                            timestamp = item.timestamp,
+                            likesCount = item.likesCount,
+                            model = image,
+                            photoUrl = item.profilePhoto,
+                            commentsCount =item.commentsCount
+                        )
+                    }
                 }
             }
             composable("lessons") {
@@ -243,22 +301,33 @@ fun HomeGraphv2(
                             }
                         }
                         1 -> {
-                            navHostController.navigate(route = "about_screen"){
+                            navHostController.navigate(route = "upload_post_screen"){
                                 launchSingleTop = true
                             }
                         }
                         2 -> {
+                            navHostController.navigate(route = "about_screen"){
+                                launchSingleTop = true
+                            }
+                        }
+                        3 -> {
                             homeGraphViewModel.signOut()
                         }
                     }
                 }
             }
-            composable(route = "upload_words_screen"){
+            composable("upload_words_screen"){
                 UploadWordsScreen{
                     word, description, example ->
                     wordScrollViewModel.uploadWordsToFirestore(
                         word, description, example
                     )
+                }
+            }
+            composable("upload_post_screen") {
+                UploadPostScreen{
+                    caption, image ->
+                    announcementsViewModel.post(caption, image)
                 }
             }
             composable("about_screen") {
@@ -286,6 +355,7 @@ fun getTitle(route: String?): String {
         "upload_words_screen" -> "Upload Words"
         "about_screen" -> "About"
         "announcements_screen" -> "Announcements"
+        "upload_post_screen" -> "New Post"
 //        "announcements" -> "Announcements"
         else -> "Loading" // Default title
     }

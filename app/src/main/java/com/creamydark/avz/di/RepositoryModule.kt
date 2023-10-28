@@ -1,6 +1,8 @@
 package com.creamydark.avz.di
 
 import android.content.Context
+import com.creamydark.avz.data.datasource.AnnouncementRepository
+import com.creamydark.avz.data.datasource.AnnouncementRepositoryImpl
 import com.creamydark.avz.data.datasource.TaskFireStoreSourceRepository
 import com.creamydark.avz.data.datasource.TaskFireStoreSourceRepositoryImpl
 import com.creamydark.avz.data.repository.GoogleClientSignInRepository
@@ -13,6 +15,8 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.ktx.storage
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -23,12 +27,16 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object RepositoryModule {
 
+
     @Provides
     @Singleton
     fun authFirebase(): FirebaseAuth = Firebase.auth
     @Provides
     @Singleton
     fun fireStoreDB(): FirebaseFirestore = Firebase.firestore
+    @Provides
+    @Singleton
+    fun firebaseStorage():FirebaseStorage = Firebase.storage
     @Provides
     @Singleton
     fun provideGoogleClientSignInRepository(
@@ -46,6 +54,11 @@ object RepositoryModule {
     @Singleton
     fun provideTaskFireStoreSourceRepository(context: Context,joYuriAuthenticationAPI: JoYuriAuthenticationAPI): TaskFireStoreSourceRepository{
         return TaskFireStoreSourceRepositoryImpl( db = fireStoreDB(),joYuriAuthenticationAPI)
+    }
+    @Provides
+    @Singleton
+    fun announcementsRepository():AnnouncementRepository{
+        return AnnouncementRepositoryImpl(fireStoreDB(), firebaseStorage())
     }
 
 }
