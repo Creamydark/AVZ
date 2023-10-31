@@ -27,6 +27,7 @@ class JoYuriAuthenticationAPI @Inject constructor(
     fun signOut(){
         isClientAuthenticated.value = false
         userData.value = null
+        currentUserData.value = null
     }
     fun getEmail() = currentUserData.value?.email
     fun getUid() = currentUserData.value?.uid

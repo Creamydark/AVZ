@@ -13,13 +13,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.AccountBox
-import androidx.compose.material.icons.outlined.CloudUpload
-import androidx.compose.material.icons.outlined.Create
-import androidx.compose.material.icons.outlined.Info
-import androidx.compose.material.icons.outlined.PostAdd
-import androidx.compose.material.icons.outlined.Send
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -33,7 +26,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -82,12 +75,12 @@ fun ProfileScreen(viewModel:ProfileViewModel,onclicked:(Int)->Unit) {
                         usertype ->
                     if (!usertype){
                         item {
-                            ProfileListItem(title = "Upload Words", icon = Icons.Outlined.CloudUpload) {
+                            ProfileListItem(title = "Upload Words", icon = painterResource(id = R.drawable.outline_cloud_upload_24)) {
                                 onclicked(0)
                             }
                         }
                         item {
-                            ProfileListItem(title = "Post Announcements", icon = Icons.Outlined.PostAdd) {
+                            ProfileListItem(title = "Post Announcements", icon = painterResource(id = R.drawable.outline_post_add_24)) {
                                 onclicked(1)
                             }
                         }
@@ -95,13 +88,13 @@ fun ProfileScreen(viewModel:ProfileViewModel,onclicked:(Int)->Unit) {
                 }
 
                 item {
-                    ProfileListItem(title = "About", icon = Icons.Outlined.Info) {
+                    ProfileListItem(title = "About", icon = painterResource(id = R.drawable.outline_info_24)) {
                         onclicked(2)
 
                     }
                 }
                 item {
-                    ProfileListItem(title = "Sign Out", icon = Icons.Outlined.AccountBox) {
+                    ProfileListItem(title = "Sign Out", icon = painterResource(id = R.drawable.outline_account_circle_24)) {
                         onclicked(3)
 
                     }
@@ -144,13 +137,13 @@ private fun ProfileHeader(profileUri : Uri?, name:String, desc:String) {
     }
 }
 @Composable
-private fun ProfileListItem(title:String,icon:ImageVector,clicked:()->Unit){
+private fun ProfileListItem(title:String,icon:Painter,clicked:()->Unit){
     Row(
         Modifier
             .fillMaxWidth()
             .padding()
             .clickable { clicked() }, verticalAlignment = Alignment.CenterVertically) {
-        Icon(modifier = Modifier.padding(16.dp), imageVector = icon, contentDescription = "")
+        Icon(modifier = Modifier.padding(16.dp), painter = icon, contentDescription = "")
         Text(
             modifier = Modifier
                 .fillMaxWidth()

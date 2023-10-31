@@ -48,6 +48,7 @@ import com.creamydark.avz.domain.ResultType
 import com.creamydark.avz.domain.usecase.GetPostImageUseCase
 import com.creamydark.avz.presentation.ui.customcomposables.InstagramLikePostLayout
 import com.creamydark.avz.presentation.ui.screen.AboutAppScreen
+import com.creamydark.avz.presentation.ui.screen.AnnouncementsScreen
 import com.creamydark.avz.presentation.ui.screen.FavoriteScreen
 import com.creamydark.avz.presentation.ui.screen.LessonsScreen
 import com.creamydark.avz.presentation.ui.screen.ProfileScreen
@@ -76,10 +77,11 @@ fun HomeGraphv2(
     val navHostController = rememberNavController()
 
     val bottomNavigationItems = listOf(
-        NavigationItemModel("home", "Home", Icons.Outlined.Home),
-        NavigationItemModel("lessons", "Lessons", Icons.Outlined.Email),
-        NavigationItemModel("favorites", "Favorites", Icons.Outlined.FavoriteBorder),
-        NavigationItemModel("profile", "Profile", Icons.Outlined.Person)
+        NavigationItemModel("home_screen", "Home", Icons.Outlined.Home),
+        NavigationItemModel("lessons_screen", "Lessons", Icons.Outlined.Email),
+//        NavigationItemModel("favorites_screen", "Favorites", Icons.Outlined.FavoriteBorder),
+        NavigationItemModel("announcements_screen", "Announcements", Icons.Outlined.Notifications),
+        NavigationItemModel("profile_screen", "Profile", Icons.Outlined.Person)
     )
 
     val scope = rememberCoroutineScope()
@@ -88,7 +90,7 @@ fun HomeGraphv2(
     val currentRoute = currentRoute(navHostController)
 
     val uploadPostResult by announcementsViewModel.resultUpload.collectAsStateWithLifecycle()
-    val uploadResult: ResultType<String> by wordScrollViewModel.uploadResult.collectAsStateWithLifecycle(initialValue = ResultType.loading())
+    val uploadResult by wordScrollViewModel.uploadResult.collectAsStateWithLifecycle(initialValue = ResultType.loading())
     val addFavoriteResult by wordScrollViewModel.addFavoriteResult.collectAsStateWithLifecycle(initialValue = ResultType.loading())
     val userData by wordScrollViewModel.userData.collectAsStateWithLifecycle()
 
@@ -159,16 +161,16 @@ fun HomeGraphv2(
                 },
                 actions = {
                     when(currentRoute){
-                        "home" ->{
+                        "home_screen" ->{
                             IconButton(
                                 onClick = {
-                                    navHostController.navigate("announcements_screen"){
+                                    navHostController.navigate("favorites_screen"){
                                         launchSingleTop = true
                                     }
                                 },
                             ) {
                                 Icon(
-                                    imageVector = Icons.Outlined.Notifications,
+                                    imageVector = Icons.Outlined.FavoriteBorder,
                                     contentDescription = ""
                                 )
                             }
@@ -176,7 +178,7 @@ fun HomeGraphv2(
                     }
                 },
                 navigationIcon = {
-                    val i = arrayOf("home","lessons","favorites","profile")
+                    val i = arrayOf("home_screen","lessons_screen","announcements_screen","profile_screen")
                     if (!i.contains(currentRoute)){
                         IconButton(
                             onClick = {
@@ -235,61 +237,26 @@ fun HomeGraphv2(
 
         NavHost(
             navController = navHostController,
-            startDestination = "home",
+            startDestination = "home_screen",
             modifier = Modifier
                 .fillMaxSize()
                 .padding(bottom = inner.calculateBottomPadding(), top = inner.calculateTopPadding())
         ) {
-            composable("home") {
+            composable("home_screen") {
                 ScrollScrollKaScreen(viewModel = wordScrollViewModel)
             }
             composable("announcements_screen"){
                 //announcementsViewModel
-                val postList by announcementsViewModel.postList.collectAsStateWithLifecycle()
-                LazyColumn(modifier = Modifier.fillMaxSize()){
-                    items(
-                        postList,
-                        key = {
-                            it.timestamp
-                        },
-                    ){
-                        item->
-                        var image by remember {
-                            mutableStateOf<Uri?>(null)
-                        }
-                        val ref = "POSTS-ANNOUNCEMENTS/${item.username}/${item.timestamp}/image-post.jpg"
-                        LaunchedEffect(key1 = item.timestamp ){
-                            announcementsViewModel.getPostImageUseCase().invoke(ref).apply {
-                                when(this){
-                                    is ResultType.Error -> {}
-                                    ResultType.Loading -> {}
-                                    is ResultType.Success -> {
-                                        image = this.data
-                                    }
-                                }
-                            }
-                        }
-//                        AsyncImage(modifier = Modifier.fillMaxWidth(), model = image, contentDescription = "")
-                        InstagramLikePostLayout(
-                            username = item.username,
-                            caption = item.caption,
-                            timestamp = item.timestamp,
-                            likesCount = item.likesCount,
-                            model = image,
-                            photoUrl = item.profilePhoto,
-                            commentsCount =item.commentsCount
-                        )
-                    }
-                }
+                AnnouncementsScreen(viewModel = announcementsViewModel)
             }
-            composable("lessons") {
+            composable("lessons_screen") {
                 LessonsScreen()
             }
-            composable("favorites") {
+            composable("favorites_screen") {
                 val favList = userData?.favoriteWords?: emptyList()
                 FavoriteScreen(favList = favList)
             }
-            composable("profile") {
+            composable("profile_screen") {
                 ProfileScreen(
                     profileViewModel
                 ){
@@ -348,10 +315,10 @@ fun currentRoute(navController: NavHostController): String {
 
 fun getTitle(route: String?): String {
     return when (route) {
-        "home" -> "Vocabulary"
-        "lessons" -> "Check your lessons"
-        "favorites" -> "Your Favorites"
-        "profile" -> "My Profile"
+        "home_screen" -> "Vocabulary"
+        "lessons_screen" -> "Check your lessons"
+        "favorites_screen" -> "Your Favorites"
+        "profile_screen" -> "My Profile"
         "upload_words_screen" -> "Upload Words"
         "about_screen" -> "About"
         "announcements_screen" -> "Announcements"

@@ -7,5 +7,5 @@ import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 class UploadAnnouncementPostUseCase @Inject constructor(private val repository: AnnouncementRepository) {
-    suspend fun invoke(username:String,caption:String,timestamp:Long,image: Uri?,profilePhoto:Uri?):Flow<ResultType<String>> = repository.post(username, caption, timestamp,image,profilePhoto)
+    suspend fun invoke(displayName:String,emailUploader:String,caption:String,timestamp:Long,image: Uri?,profilePhoto:Uri?):Flow<ResultType<String>> = repository.post(displayName, emailUploader, caption, timestamp, image, profilePhoto)
 }

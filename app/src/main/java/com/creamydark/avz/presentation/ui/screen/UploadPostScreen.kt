@@ -38,8 +38,6 @@ fun UploadPostScreen(
 
 
     var caption by remember { mutableStateOf("") }
-    val context = LocalContext.current
-
     var image by remember {
         mutableStateOf<Uri?>(null)
     }
@@ -96,7 +94,7 @@ fun UploadPostScreen(
                 .padding(horizontal = 16.dp),
             shape = RoundedCornerShape(4.dp),
             onClick = {
-                      onUploadClick(caption,image)
+                onUploadClick(caption,image)
             },
         ) {
             Text(text = "Upload")

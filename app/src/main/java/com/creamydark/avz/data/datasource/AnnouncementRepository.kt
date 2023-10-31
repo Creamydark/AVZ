@@ -7,7 +7,7 @@ import kotlinx.coroutines.flow.Flow
 import java.sql.Timestamp
 
 interface AnnouncementRepository {
-    suspend fun post(username:String,caption:String,timestamp: Long,image:Uri?,profilePhoto:Uri?):Flow<ResultType<String>>
+    suspend fun post(displayName:String,emailUploader:String,caption:String,timestamp: Long,image:Uri?,profilePhoto:Uri?):Flow<ResultType<String>>
     suspend fun getAllAnnouncements():Flow<ResultType<List<AnnouncementPostData>>>
-    suspend fun getPostImage(ref:String):ResultType<Uri>
+    suspend fun getPostImage(path:String):ResultType<Uri>
 }

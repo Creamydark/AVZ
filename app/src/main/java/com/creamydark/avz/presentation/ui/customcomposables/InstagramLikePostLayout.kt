@@ -1,7 +1,6 @@
 package com.creamydark.avz.presentation.ui.customcomposables
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -12,10 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Comment
-import androidx.compose.material.icons.outlined.FavoriteBorder
-import androidx.compose.material3.Icon
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -23,11 +19,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
-import com.creamydark.avz.R
+import coil.compose.AsyncImagePainter
+import coil.compose.SubcomposeAsyncImage
+import coil.compose.SubcomposeAsyncImageContent
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -35,18 +33,18 @@ import java.time.format.DateTimeFormatter
 @Composable
 fun InstagramLikePostLayout(
     username: String,
-    caption:String,
+    caption: String,
     timestamp: Long,
     likesCount: Int,
     model: Any?,
-    photoUrl:String,
+    photoUrl: String,
     commentsCount: Int
 ) {
-    val timestampInMilliseconds = System.currentTimeMillis() // Replace with your timestamp
+//    val timestampInMilliseconds = System.currentTimeMillis() // Replace with your timestamp
     val pattern = "yyyy-MM-dd HH:mm a" // Customize the format as needed
+    val timestampF = convertMillisToDateTime(timestamp,pattern)
     Column(
         modifier = Modifier
-            .background(Color.White)
     ) {
         // User information
         Row(
@@ -70,57 +68,86 @@ fun InstagramLikePostLayout(
             // Username and timestamp
             Column {
                 Text(text = username, fontWeight = FontWeight.Bold)
-                Text(text = convertMillisToDateTime(timestampInMilliseconds,pattern))
+                Text(text = timestampF)
             }
         }
 
         // Post image
-        AsyncImage(
+        /*AsyncImage(
             model = model,
             modifier = Modifier
                 .fillMaxWidth()
                 .height(300.dp),
             contentDescription = "",
             placeholder = painterResource(id = R.drawable.app_logo_hd_png),
+            error = painterResource(id = R.drawable.app_logo_hd_png),
             contentScale = ContentScale.Crop
-
-        )
-        
-        Text(modifier = Modifier.padding(8.dp), text = caption)
-
-        // Like and comment buttons
-        Row(
+        )*/
+        SubcomposeAsyncImage(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween
+                .height(300.dp),
+            model = model,
+            contentDescription = "",
+            contentScale = ContentScale.Crop
         ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(4.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Outlined.FavoriteBorder,
-                    contentDescription = null,
-                    modifier = Modifier.size(24.dp)
-                )
-                Text(text = "Like")
+            val state = painter.state
+            when(state){
+                AsyncImagePainter.State.Empty -> {
+                    Text(text = "Empty Image", textAlign = TextAlign.Center)
+                }
+                is AsyncImagePainter.State.Loading -> {
+                    Box(modifier = Modifier){
+                        CircularProgressIndicator(
+                            modifier = Modifier
+                                .size(32.dp)
+                                .align(Alignment.Center)
+                        )
+                    }
+                }
+                is AsyncImagePainter.State.Success -> {
+                    SubcomposeAsyncImageContent()
+                }
+                is AsyncImagePainter.State.Error -> {
+
+                }
             }
-            Icon(
-                imageVector = Icons.Outlined.Comment,
-                contentDescription = null,
-                modifier = Modifier.size(24.dp)
-            )
         }
+        Text(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp), text = caption)
+
+        // Like and comment buttons
+//        Row(
+//            modifier = Modifier
+//                .fillMaxWidth()
+//                .padding(16.dp),
+//            horizontalArrangement = Arrangement.SpaceBetween
+//        ) {
+//            Row(
+//                verticalAlignment = Alignment.CenterVertically,
+//                horizontalArrangement = Arrangement.spacedBy(4.dp)
+//            ) {
+//                Icon(
+//                    imageVector = Icons.Outlined.FavoriteBorder,
+//                    contentDescription = null,
+//                    modifier = Modifier.size(24.dp)
+//                )
+//                Text(text = "Like")
+//            }
+//            Icon(
+//                imageVector = Icons.Outlined.Comment,
+//                contentDescription = null,
+//                modifier = Modifier.size(24.dp)
+//            )
+//        }
 
         // Like and comment counts
-        Text(
-            text = "$likesCount likes\n$commentsCount comments",
-            modifier = Modifier
-                .padding(16.dp)
-                .fillMaxWidth(),
-            fontWeight = FontWeight.Bold
-        )
+//        Text(
+//            text = "$likesCount likes\n$commentsCount comments",
+//            modifier = Modifier
+//                .padding(16.dp)
+//                .fillMaxWidth(),
+//            fontWeight = FontWeight.Bold
+//        )
     }
 }
 fun convertMillisToDateTime(milliseconds: Long, pattern: String): String {

@@ -1,7 +1,6 @@
 package com.creamydark.avz.data.datasource
 
 import android.net.Uri
-import android.util.Log
 import com.creamydark.avz.domain.ResultType
 import com.creamydark.avz.domain.model.AnnouncementPostData
 import com.google.firebase.firestore.FirebaseFirestore
@@ -10,16 +9,15 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
-import java.sql.Timestamp
 import javax.inject.Inject
-import javax.xml.transform.Result
 
 class AnnouncementRepositoryImpl @Inject constructor(
     private val firestore: FirebaseFirestore,
     private val firebaseStorage: FirebaseStorage
 ):AnnouncementRepository {
     override suspend fun post(
-        username: String,
+        displayName: String,
+        emailUploader: String,
         caption: String,
         timestamp: Long,
         image: Uri?,
@@ -27,17 +25,18 @@ class AnnouncementRepositoryImpl @Inject constructor(
     ): Flow<ResultType<String>> {
         return callbackFlow {
             try {
-                val ref =firebaseStorage.reference.child("POSTS-ANNOUNCEMENTS/$username/$timestamp/image-post.jpg")
+                val ref =firebaseStorage.reference.child("POSTS-ANNOUNCEMENTS/$emailUploader/$timestamp/image-post.jpg")
                 val task = ref.putFile(image!!).await()
                 trySend(ResultType.success("Image upload successfully"))
                 if (task.task.isSuccessful){
                     val data = HashMap<String,Any>()
-                    data["username"] = username
+                    data["displayName"] = displayName
+                    data["emailUploader"] = emailUploader
                     data["caption"] = caption
                     data["timestamp"] = timestamp
                     data["profilePhoto"] = profilePhoto.toString()
                     val db = firestore.collection("Announcements-Post")
-                    db.document("$username-$timestamp").set(data).await()
+                    db.document("$emailUploader-$timestamp").set(data).await()
                     trySend(ResultType.success("Upload Successfully"))
                 }
                 close()

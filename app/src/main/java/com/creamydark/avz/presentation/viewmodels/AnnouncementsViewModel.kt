@@ -27,7 +27,10 @@ class AnnouncementsViewModel @Inject constructor(
     private val getPostImageUseCase: GetPostImageUseCase,
     private val firebaseStorage: FirebaseStorage,
 ):ViewModel() {
-    val email  = joYuriAuthenticationAPI.getEmail()?:""
+
+    val emailUploader  = joYuriAuthenticationAPI.getEmail()?:""
+    val displayName  = joYuriAuthenticationAPI.getName()?:""
+
     val profilePhoto = joYuriAuthenticationAPI.getPhotUri()
 
     private val _postList =MutableStateFlow<List<AnnouncementPostData>>(emptyList())
@@ -58,7 +61,7 @@ class AnnouncementsViewModel @Inject constructor(
     fun post(caption:String,image:Uri?){
         viewModelScope.launch(Dispatchers.IO){
             val timestamp = System.currentTimeMillis()
-            uploadAnnouncementPostUseCase.invoke(username = email,caption,timestamp,image,profilePhoto).collectLatest {
+            uploadAnnouncementPostUseCase.invoke(displayName, emailUploader, caption, timestamp, image, profilePhoto).collectLatest {
                 result->
                 _resultUpload.value = result
             }
