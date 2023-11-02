@@ -1,0 +1,310 @@
+{
+  "name": "google_button",
+  "version": 32,
+  "source-key": {
+    "type": "figma",
+    "file": "DN7NOrGG3L3tcgyvzPPRbp",
+    "node": "8:236",
+    "version": "4453138252",
+    "component-id": "cefccda255dc9fe38f7a2d4fad273234194468d8"
+  },
+  "default": "Google Button",
+  "documentation": "Google Sign Button\n",
+  "design": {
+    "atoms": [
+      {
+        "type": "group",
+        "id": "top_level",
+        "root": "true"
+      },
+      {
+        "type": "group",
+        "id": "Button Content"
+      },
+      {
+        "type": "group",
+        "id": "Logo"
+      },
+      {
+        "type": "text",
+        "id": "Button Text"
+      },
+      {
+        "type": "group",
+        "id": "Group 1"
+      },
+      {
+        "type": "vector",
+        "id": "Vector"
+      },
+      {
+        "type": "vector",
+        "id": "Vector1"
+      },
+      {
+        "type": "vector",
+        "id": "Vector2"
+      },
+      {
+        "type": "vector",
+        "id": "Vector3"
+      },
+      {
+        "type": "vector",
+        "id": "Vector4"
+      }
+    ],
+    "modes": {
+      "Google Button": {
+        "rules": [
+          {
+            "id": "top_level",
+            "padding": {
+              "left": "52.0",
+              "top": "19.0",
+              "right": "52.0",
+              "bottom": "19.0"
+            },
+            "border-radius": "16.0",
+            "tap-handler": "$on Google Button tapped",
+            "size-constraints": {
+              "width-constraints": {
+                "sizing-mode": "proportional",
+                "value": "1.0"
+              },
+              "height-constraints": {
+                "sizing-mode": "shrink"
+              }
+            },
+            "stroke-width": "1.0",
+            "stroke-color": {
+              "alpha": "1.0",
+              "hue": "240.0",
+              "saturation": "0.034482758620689655",
+              "value": "0.9098039215686274"
+            },
+            "children": [
+              "Button Content"
+            ],
+            "item-spacing": "10.0",
+            "clip-content": "false"
+          },
+          {
+            "id": "Button Content",
+            "size-constraints": {
+              "width-constraints": {
+                "sizing-mode": "fixed",
+                "value": "231.0"
+              },
+              "height-constraints": {
+                "sizing-mode": "fixed",
+                "value": "23.0"
+              }
+            },
+            "is-structured": "false",
+            "children": [
+              "Logo",
+              "Button Text"
+            ],
+            "clip-content": "false"
+          },
+          {
+            "id": "Logo",
+            "margin": {
+              "right": "208.0"
+            },
+            "is-structured": "false",
+            "children": [
+              "Group 1"
+            ],
+            "clip-content": "false"
+          },
+          {
+            "id": "Button Text",
+            "alignment": {
+              "horizontal": {
+                "attachment": "start",
+                "offset": "39.0"
+              },
+              "vertical": {
+                "attachment": "start",
+                "offset": "1.5"
+              }
+            },
+            "font-weight": "500.0",
+            "color": "$color",
+            "text-content": "Sign up with Google",
+            "overflow": "visible",
+            "text-align": "left",
+            "text-align-vertical": "center",
+            "text-size": "20.0",
+            "typeface": "Inter"
+          },
+          {
+            "id": "Group 1",
+            "size-constraints": {
+              "width-constraints": {
+                "sizing-mode": "fixed",
+                "value": "23.0"
+              },
+              "height-constraints": {
+                "sizing-mode": "fixed",
+                "value": "23.0"
+              }
+            },
+            "is-structured": "false",
+            "children": [
+              "Vector",
+              "Vector1",
+              "Vector2",
+              "Vector3",
+              "Vector4"
+            ],
+            "clip-content": "false"
+          },
+          {
+            "id": "Vector",
+            "alignment": {
+              "horizontal": {
+                "attachment": "start",
+                "offset": "11.5"
+              },
+              "vertical": {
+                "attachment": "start",
+                "offset": "9.409088134765625"
+              }
+            },
+            "size-constraints": {
+              "width-constraints": {
+                "sizing-mode": "fixed",
+                "value": "11.040000915527344"
+              },
+              "height-constraints": {
+                "sizing-mode": "fixed",
+                "value": "10.804779052734375"
+              }
+            },
+            "vector-content": "vector.svg"
+          },
+          {
+            "id": "Vector1",
+            "alignment": {
+              "horizontal": {
+                "attachment": "start",
+                "offset": "1.2230987548828125"
+              },
+              "vertical": {
+                "attachment": "start",
+                "offset": "13.684844970703125"
+              }
+            },
+            "size-constraints": {
+              "width-constraints": {
+                "sizing-mode": "fixed",
+                "value": "17.887725830078125"
+              },
+              "height-constraints": {
+                "sizing-mode": "fixed",
+                "value": "9.31500244140625"
+              }
+            },
+            "vector-content": "vector1.svg"
+          },
+          {
+            "id": "Vector2",
+            "alignment": {
+              "horizontal": {
+                "attachment": "start",
+                "offset": "0.0"
+              },
+              "vertical": {
+                "attachment": "start",
+                "offset": "6.33551025390625"
+              }
+            },
+            "size-constraints": {
+              "width-constraints": {
+                "sizing-mode": "fixed",
+                "value": "5.065223693847656"
+              },
+              "height-constraints": {
+                "sizing-mode": "fixed",
+                "value": "10.3291015625"
+              }
+            },
+            "vector-content": "vector2.svg"
+          },
+          {
+            "id": "Vector3",
+            "alignment": {
+              "horizontal": {
+                "attachment": "start",
+                "offset": "1.2230987548828125"
+              },
+              "vertical": {
+                "attachment": "start",
+                "offset": "0.0"
+              }
+            },
+            "size-constraints": {
+              "width-constraints": {
+                "sizing-mode": "fixed",
+                "value": "17.97136688232422"
+              },
+              "height-constraints": {
+                "sizing-mode": "fixed",
+                "value": "9.31500244140625"
+              }
+            },
+            "vector-content": "vector3.svg"
+          },
+          {
+            "id": "Vector4",
+            "size-constraints": {
+              "width-constraints": {
+                "sizing-mode": "fixed",
+                "value": "23.0"
+              },
+              "height-constraints": {
+                "sizing-mode": "fixed",
+                "value": "23.0"
+              }
+            }
+          }
+        ]
+      }
+    }
+  },
+  "parameters": {
+    "on Google Button tapped": {
+      "data-type": "void-callback",
+      "required": false,
+      "description": "Google Sign in Button"
+    },
+    "color": {
+      "data-type": "color",
+      "required": false,
+      "description": ""
+    }
+  },
+  "previews": [
+    {
+      "design": "Google Button",
+      "size": {
+        "width": 366.0,
+        "height": 61.0
+      },
+      "parameters": {
+        "color": {
+          "alpha": "1.0",
+          "hue": "244.28571428571428",
+          "saturation": "0.3333333333333333",
+          "value": "0.16470588235294117"
+        }
+      }
+    }
+  ],
+  "adin-component-search-paths": [],
+  "image-search-paths": [],
+  "vector-search-paths": []
+}

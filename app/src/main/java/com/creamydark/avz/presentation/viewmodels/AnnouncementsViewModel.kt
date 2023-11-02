@@ -1,7 +1,6 @@
 package com.creamydark.avz.presentation.viewmodels
 
 import android.net.Uri
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.creamydark.avz.domain.ResultType

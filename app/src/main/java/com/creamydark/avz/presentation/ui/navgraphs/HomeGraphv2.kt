@@ -1,14 +1,12 @@
 package com.creamydark.avz.presentation.ui.navgraphs
 
-import android.net.Uri
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ArrowBack
+import androidx.compose.material.icons.outlined.Close
+import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.Email
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.outlined.Home
@@ -43,10 +41,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import coil.compose.AsyncImage
 import com.creamydark.avz.domain.ResultType
-import com.creamydark.avz.domain.usecase.GetPostImageUseCase
-import com.creamydark.avz.presentation.ui.customcomposables.InstagramLikePostLayout
 import com.creamydark.avz.presentation.ui.screen.AboutAppScreen
 import com.creamydark.avz.presentation.ui.screen.AnnouncementsScreen
 import com.creamydark.avz.presentation.ui.screen.FavoriteScreen
@@ -59,9 +54,7 @@ import com.creamydark.avz.presentation.viewmodels.AnnouncementsViewModel
 import com.creamydark.avz.presentation.viewmodels.HomeGraphViewModel
 import com.creamydark.avz.presentation.viewmodels.ProfileViewModel
 import com.creamydark.avz.presentation.viewmodels.WordScrollViewModel
-import com.google.firebase.storage.FirebaseStorage
-import kotlinx.coroutines.tasks.await
-import javax.inject.Inject
+import kotlinx.coroutines.launch
 
 
 private data class NavigationItemModel(val route: String, val label: String, val icon: ImageVector)
@@ -80,19 +73,23 @@ fun HomeGraphv2(
         NavigationItemModel("home_screen", "Home", Icons.Outlined.Home),
         NavigationItemModel("lessons_screen", "Lessons", Icons.Outlined.Email),
 //        NavigationItemModel("favorites_screen", "Favorites", Icons.Outlined.FavoriteBorder),
-        NavigationItemModel("announcements_screen", "Announcements", Icons.Outlined.Notifications),
+        NavigationItemModel("updates_screen", "Updates", Icons.Outlined.Notifications),
         NavigationItemModel("profile_screen", "Profile", Icons.Outlined.Person)
     )
 
-    val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
 
     val currentRoute = currentRoute(navHostController)
 
+    val scope =rememberCoroutineScope()
     val uploadPostResult by announcementsViewModel.resultUpload.collectAsStateWithLifecycle()
     val uploadResult by wordScrollViewModel.uploadResult.collectAsStateWithLifecycle(initialValue = ResultType.loading())
     val addFavoriteResult by wordScrollViewModel.addFavoriteResult.collectAsStateWithLifecycle(initialValue = ResultType.loading())
     val userData by wordScrollViewModel.userData.collectAsStateWithLifecycle()
+
+    var favoriteOnEditMode by remember {
+        mutableStateOf(false)
+    }
 
     when(addFavoriteResult){
         is ResultType.Error -> {
@@ -175,10 +172,27 @@ fun HomeGraphv2(
                                 )
                             }
                         }
+                        "favorites_screen"->{
+                            val icon = if (favoriteOnEditMode){
+                                Icons.Outlined.Close
+                            }else{
+                                Icons.Outlined.Edit
+                            }
+                            IconButton(
+                                onClick = {
+                                    favoriteOnEditMode = !favoriteOnEditMode
+                                },
+                            ) {
+                                Icon(
+                                    imageVector = icon,
+                                    contentDescription = ""
+                                )
+                            }
+                        }
                     }
                 },
                 navigationIcon = {
-                    val i = arrayOf("home_screen","lessons_screen","announcements_screen","profile_screen")
+                    val i = arrayOf("home_screen","lessons_screen","updates_screen","profile_screen")
                     if (!i.contains(currentRoute)){
                         IconButton(
                             onClick = {
@@ -234,7 +248,6 @@ fun HomeGraphv2(
     ) {
         inner ->
         //MainContent
-
         NavHost(
             navController = navHostController,
             startDestination = "home_screen",
@@ -245,7 +258,7 @@ fun HomeGraphv2(
             composable("home_screen") {
                 ScrollScrollKaScreen(viewModel = wordScrollViewModel)
             }
-            composable("announcements_screen"){
+            composable("updates_screen"){
                 //announcementsViewModel
                 AnnouncementsScreen(viewModel = announcementsViewModel)
             }
@@ -254,7 +267,14 @@ fun HomeGraphv2(
             }
             composable("favorites_screen") {
                 val favList = userData?.favoriteWords?: emptyList()
-                FavoriteScreen(favList = favList)
+                val wordsList by wordScrollViewModel._wordsList.collectAsStateWithLifecycle()
+                FavoriteScreen(favList = favList, wordList = wordsList,editMode = favoriteOnEditMode){
+                    toDelete ->
+                    scope.launch {
+//                        snackbarHostState.showSnackbar(toDelete)
+                        wordScrollViewModel.addFavorites(toDelete)
+                    }
+                }
             }
             composable("profile_screen") {
                 ProfileScreen(
@@ -321,7 +341,7 @@ fun getTitle(route: String?): String {
         "profile_screen" -> "My Profile"
         "upload_words_screen" -> "Upload Words"
         "about_screen" -> "About"
-        "announcements_screen" -> "Announcements"
+        "updates_screen" -> "Updates"
         "upload_post_screen" -> "New Post"
 //        "announcements" -> "Announcements"
         else -> "Loading" // Default title

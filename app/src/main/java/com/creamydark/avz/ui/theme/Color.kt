@@ -12,6 +12,8 @@ val Pink40 = Color(0xFF7D5260)
 
 
 
-val primaryColor = Color(0xFF7E57C2) // Primary shade of purple
-val secondaryColor = Color(0xFF9567D4) // Slightly lighter shade of purple
-val tertiaryColor = Color(0xFF4B3C76) // Darker shade of purple
+
+
+val primaryColor = Color(0xFF52616B) // Primary shade of purple
+val secondaryColor = Color(0xFFC9D6DF) // Slightly lighter shade of purple
+val tertiaryColor = Color(0xFFF0F5F9) // Darker shade of purple

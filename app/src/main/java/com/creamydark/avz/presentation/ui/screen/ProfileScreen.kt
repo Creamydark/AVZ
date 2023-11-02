@@ -1,8 +1,8 @@
 package com.creamydark.avz.presentation.ui.screen
 
 import android.net.Uri
-import android.util.Log
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -13,7 +13,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.ElevatedCard
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.KeyboardArrowRight
+import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -26,10 +28,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -68,33 +68,37 @@ fun ProfileScreen(viewModel:ProfileViewModel,onclicked:(Int)->Unit) {
         .fillMaxSize()
         .padding(horizontal = 16.dp)) {
         ProfileHeader(profileUri = profileUri, name = name?:"", desc = "$email\n${userTypeText}")
-        Log.d("ProfileScreen", "ProfileScreen: ${profileUri?.toString()}")
-        ElevatedCard {
+        /*Text(
+            text = "Options",
+            style = MaterialTheme.typography.bodyLarge,
+        )*/
+        Card(
+//            colors = CardDefaults.cardColors(containerColor = Color.Black.copy(alpha = 0.10f))
+        ) {
             LazyColumn{
                 userData?.student?.let {
                         usertype ->
                     if (!usertype){
                         item {
-                            ProfileListItem(title = "Upload Words", icon = painterResource(id = R.drawable.outline_cloud_upload_24)) {
+                            ProfileListItem(title = "Upload Words") {
                                 onclicked(0)
                             }
                         }
                         item {
-                            ProfileListItem(title = "Post Announcements", icon = painterResource(id = R.drawable.outline_post_add_24)) {
+                            ProfileListItem(title = "Post Announcements") {
                                 onclicked(1)
                             }
                         }
                     }
                 }
-
                 item {
-                    ProfileListItem(title = "About", icon = painterResource(id = R.drawable.outline_info_24)) {
+                    ProfileListItem(title = "About") {
                         onclicked(2)
 
                     }
                 }
                 item {
-                    ProfileListItem(title = "Sign Out", icon = painterResource(id = R.drawable.outline_account_circle_24)) {
+                    ProfileListItem(title = "Sign Out") {
                         onclicked(3)
 
                     }
@@ -120,37 +124,45 @@ private fun ProfileHeader(profileUri : Uri?, name:String, desc:String) {
             modifier = Modifier
                 .size(120.dp)
                 .clip(CircleShape)
+//                .border(width = 5.dp,MaterialTheme.colorScheme.primary, shape = CircleShape)
         )
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(16.dp))
         Text(
             text = name,
-            fontSize = 20.sp,
-            fontWeight = FontWeight.Bold
+            textAlign = TextAlign.Center,
+            style = MaterialTheme.typography.titleLarge
         )
-        Spacer(modifier = Modifier.height(4.dp))
         Text(
             text = desc,
-            fontSize = 16.sp,
-            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
-            textAlign = TextAlign.Center
+            fontSize = 14.sp,
+            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+            textAlign = TextAlign.Center,
+            lineHeight = 16.sp
         )
     }
 }
 @Composable
-private fun ProfileListItem(title:String,icon:Painter,clicked:()->Unit){
+private fun ProfileListItem(title:String,clicked:()->Unit){
     Row(
         Modifier
             .fillMaxWidth()
             .padding()
-            .clickable { clicked() }, verticalAlignment = Alignment.CenterVertically) {
-        Icon(modifier = Modifier.padding(16.dp), painter = icon, contentDescription = "")
+            .clickable { clicked() },
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
         Text(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(8.dp)
-                .weight(1f),
+                .padding(horizontal = 20.dp),
             text = title,
-            style = MaterialTheme.typography.bodyLarge
+            style = MaterialTheme.typography.titleSmall,
+            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+        )
+        Icon(
+            modifier = Modifier.padding(16.dp),
+            imageVector = Icons.Rounded.KeyboardArrowRight,
+            contentDescription = "",
+            tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
         )
     }
 }

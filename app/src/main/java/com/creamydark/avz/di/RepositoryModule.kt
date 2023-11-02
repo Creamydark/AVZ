@@ -8,7 +8,6 @@ import com.creamydark.avz.data.datasource.TaskFireStoreSourceRepositoryImpl
 import com.creamydark.avz.data.repository.GoogleClientSignInRepository
 import com.creamydark.avz.data.repository.GoogleClientSignInRepositoryImpl
 import com.creamydark.avz.domain.some_api.JoYuriAuthenticationAPI
-import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
@@ -57,8 +56,8 @@ object RepositoryModule {
     }
     @Provides
     @Singleton
-    fun announcementsRepository():AnnouncementRepository{
-        return AnnouncementRepositoryImpl(fireStoreDB(), firebaseStorage())
+    fun announcementsRepository(context: Context):AnnouncementRepository{
+        return AnnouncementRepositoryImpl(fireStoreDB(), firebaseStorage(), context = context)
     }
 
 }

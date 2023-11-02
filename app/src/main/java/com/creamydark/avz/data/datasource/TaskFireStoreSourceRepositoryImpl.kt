@@ -1,6 +1,5 @@
 package com.creamydark.avz.data.datasource
 
-import android.util.Log
 import com.creamydark.avz.domain.ResultType
 import com.creamydark.avz.domain.model.UserData
 import com.creamydark.avz.domain.model.WordsDataModel

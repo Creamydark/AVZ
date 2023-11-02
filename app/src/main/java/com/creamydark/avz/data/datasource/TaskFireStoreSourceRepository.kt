@@ -1,12 +1,9 @@
 package com.creamydark.avz.data.datasource
 
-import android.provider.ContactsContract.CommonDataKinds.Email
 import com.creamydark.avz.domain.ResultType
 import com.creamydark.avz.domain.model.UserData
 import com.creamydark.avz.domain.model.WordsDataModel
 import kotlinx.coroutines.flow.Flow
-import java.time.LocalDate
-import java.time.format.ResolverStyle
 
 interface TaskFireStoreSourceRepository {
     suspend fun getUserExtraData(email:String):Flow<ResultType<UserData?>>

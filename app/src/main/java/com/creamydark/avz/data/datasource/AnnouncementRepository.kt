@@ -4,7 +4,6 @@ import android.net.Uri
 import com.creamydark.avz.domain.ResultType
 import com.creamydark.avz.domain.model.AnnouncementPostData
 import kotlinx.coroutines.flow.Flow
-import java.sql.Timestamp
 
 interface AnnouncementRepository {
     suspend fun post(displayName:String,emailUploader:String,caption:String,timestamp: Long,image:Uri?,profilePhoto:Uri?):Flow<ResultType<String>>

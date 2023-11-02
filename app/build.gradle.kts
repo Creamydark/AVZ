@@ -4,6 +4,7 @@ plugins {
     id("com.google.gms.google-services")
     kotlin("kapt")
     id("com.google.dagger.hilt.android")
+//    id("com.google.relay") version "0.3.09"
 }
 
 android {
@@ -21,7 +22,7 @@ android {
     defaultConfig {
         applicationId = "com.creamydark.avz"
         minSdk = 29
-        targetSdk = 33
+        targetSdk = 34
         versionCode = 1
         versionName = "1.0"
 
@@ -74,6 +75,7 @@ dependencies {
 
 
 
+    implementation("id.zelory:compressor:3.0.1")
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
 //    implementation("com.maxkeppeler.sheets-compose-dialogs:core:1.2.0")
@@ -109,7 +111,7 @@ dependencies {
 
     // TODO: Add the dependencies for Firebase products you want to use
     // When using the BoM, don't specify versions in Firebase dependencies
-    implementation("com.google.firebase:firebase-analytics-ktx")
+//    implementation("com.google.firebase:firebase-analytics-ktx")
 
 
     // Add the dependencies for any other desired Firebase products
@@ -126,7 +128,7 @@ dependencies {
     implementation("androidx.core:core-ktx:1.12.0")
 //    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.2")
     implementation("androidx.activity:activity-compose:1.8.0")
-    implementation(platform("androidx.compose:compose-bom:2023.03.00"))
+    implementation(platform("androidx.compose:compose-bom:2023.08.00"))
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.ui:ui-graphics")
     implementation("androidx.compose.ui:ui-tooling-preview")

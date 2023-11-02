@@ -2,7 +2,6 @@ package com.creamydark.avz.domain.some_api
 
 import com.creamydark.avz.domain.model.CurrentUserData
 import com.creamydark.avz.domain.model.UserData
-import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.flow.MutableStateFlow
 import javax.inject.Inject
 

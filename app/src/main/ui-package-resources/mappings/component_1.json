@@ -1,0 +1,6 @@
+{
+    "target": "Component1",
+    "package": "com.creamydark.avz.component1",
+    "generateImplementation": true,
+    "generatePreviews": true
+}

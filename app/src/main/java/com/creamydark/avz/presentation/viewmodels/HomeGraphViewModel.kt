@@ -1,6 +1,5 @@
 package com.creamydark.avz.presentation.viewmodels
 
-import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.creamydark.avz.domain.model.UserData
@@ -18,8 +17,7 @@ import javax.inject.Inject
 class HomeGraphViewModel @Inject constructor(
     private val signOutUseCase: SignOutUseCase,
     private val getUserExtraDataUsecase: GetUserExtraDataUsecase,
-    private val authListenerUseCase: FirebaseAuthListenerUseCase,
-    context: Context
+    private val authListenerUseCase: FirebaseAuthListenerUseCase
 ):ViewModel() {
 
     private val userData = MutableStateFlow(UserData())
