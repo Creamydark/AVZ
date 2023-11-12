@@ -30,14 +30,33 @@ class WordScrollViewModel @Inject constructor(
     joYuriAuthenticationAPI: JoYuriAuthenticationAPI
 ):ViewModel() {
 
+
     private val wordsList = MutableStateFlow(listOf<WordsDataModel>())
     val _wordsList = wordsList.asStateFlow()
 
+    private val searchResultList_ = MutableStateFlow(listOf<WordsDataModel>())
+    val searchResultList = searchResultList_.asStateFlow()
+
+    fun editSearch(text:String){
+        viewModelScope.launch {
+            val sl = arrayListOf<WordsDataModel>()
+            wordsList.value.forEach {
+                item ->
+                if (item.title.contains(other = text, ignoreCase = true)){
+                    sl.add(item)
+                }
+            }
+            searchResultList_.update {
+                sl
+            }
+        }
+    }
+
+    val userData = joYuriAuthenticationAPI.userData
 
 
     val email = joYuriAuthenticationAPI.getEmail()
 
-    val userData = joYuriAuthenticationAPI.userData
 
     private val _uploadResult = MutableStateFlow<ResultType<String>>(ResultType.loading())
     private val _addFavoriteResult = MutableStateFlow<ResultType<String>>(ResultType.loading())
@@ -78,7 +97,6 @@ class WordScrollViewModel @Inject constructor(
                         }
                         is ResultType.Success -> {
                             val data = result.data?:"Unknownnnnnn"
-
                             val list = ArrayList(wordsList.value)
                             list.add(WordsDataModel(title = data))
                             wordsList.value = list

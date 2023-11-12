@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
+import android.util.Log
 import com.creamydark.avz.domain.ResultType
 import com.creamydark.avz.domain.model.AnnouncementPostData
 import com.google.firebase.firestore.FirebaseFirestore
@@ -43,6 +44,7 @@ class AnnouncementRepositoryImpl @Inject constructor(
                         data["caption"] = caption
                         data["timestamp"] = timestamp
                         data["profilePhoto"] = profilePhoto.toString()
+                        data["imagePost"] = task.storage.downloadUrl.await()
                         val db = firestore.collection("Announcements-Post")
                         db.document("$emailUploader-$timestamp").set(data).await()
                         trySend(ResultType.success("Upload Successfully"))
@@ -76,6 +78,7 @@ class AnnouncementRepositoryImpl @Inject constructor(
         return try {
             val ref = firebaseStorage.reference.child(path)
             val data = ref.downloadUrl.await()
+            Log.d("AnnouncementRepositoryImpl", "getPostImage:  $data")
             ResultType.success(data)
         }catch (e:Throwable){
             ResultType.error(e)

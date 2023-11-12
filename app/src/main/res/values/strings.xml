@@ -2,4 +2,7 @@
     <string name="app_name">AVZ</string>
     <string name="register_below_title_text">Sign up now and start exploring all that our has to offer. We\'re excited to welcome you to our community</string>
     <string name="login_below_title_text">We\'re excited to have you back, can\'t wait to see what you\'ve been up since you last logged in.</string>
+    <string name="app_capstone_title">AVZ : AN ENGLISH VOCABOLARY LEARNING ANDROID APPLICATION FOR GRADE 7 STUDENTS AT A. FERRER JR. EAST NATIONAL HIGHSCHOOL</string>
+    <string name="powered_by_jetpack_compose">We leverage the power of Kotlin and Jetpack Compose to bring you an app that is not just functional but a joy to use. Enjoy the benefits of a reactive UI toolkit that makes everything smooth and dynamic.</string>
+    <string name="exclusive_to_android">AVZ is designed with the Android ecosystem in mind, utilizing the latest Android technologies for optimal performance and compatibility. It\'s an experience tailor-made for Android enthusiasts!</string>
 </resources>

@@ -11,6 +11,7 @@ import com.creamydark.avz.domain.some_api.JoYuriAuthenticationAPI
 import com.creamydark.avz.domain.usecase.AddUserExtraDataUseCases
 import com.creamydark.avz.domain.usecase.FirebaseAuthListenerUseCase
 import com.creamydark.avz.domain.usecase.SignInUserUsingCredentialsUseCases
+import com.creamydark.avz.inozienum.UserAuthenticationState
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -30,21 +31,19 @@ class RootNavGraphViewModel @Inject constructor(
     private val joYuriAuthenticationAPI: JoYuriAuthenticationAPI
 ):ViewModel() {
 
-    private val isAuthenticated = joYuriAuthenticationAPI.isClientAuthenticated
-    val _isAuthenticated = isAuthenticated.asStateFlow()
-
-    private val userData = joYuriAuthenticationAPI.userData
-    val _userData = userData.asStateFlow()
-
     private val errorSignInWithCreds = MutableStateFlow("")
     val _errorSignInWithCreds = errorSignInWithCreds.asStateFlow()
+    fun getAuthState() = joYuriAuthenticationAPI.getUserAuthenticationState()
 
     init {
+
+    }
+    fun initialize(){
         viewModelScope.launch(Dispatchers.IO) {
+            joYuriAuthenticationAPI.updateUserAuthenticationState(UserAuthenticationState.Unauthenticated)
             firebaseAuthListenerUseCase.invoke()
         }
     }
-
     fun uploadDataToFirestore(userType: Boolean){
         viewModelScope.launch(Dispatchers.IO) {
             val email = joYuriAuthenticationAPI.getEmail()

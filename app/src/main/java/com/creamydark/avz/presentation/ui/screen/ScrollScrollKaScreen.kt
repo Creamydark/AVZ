@@ -36,9 +36,9 @@ import com.creamydark.avz.presentation.viewmodels.WordScrollViewModel
 @Composable
 fun ScrollScrollKaScreen(viewModel: WordScrollViewModel){
 
+    val userdata by viewModel.userData.collectAsStateWithLifecycle()
     val yuri by viewModel._wordsList.collectAsStateWithLifecycle()
-    val userData by viewModel.userData.collectAsStateWithLifecycle()
-    val favList = userData?.favoriteWords?:emptyList()
+    val favList = userdata?.favoriteWords?: emptyList()
     val pagerState = rememberPagerState(pageCount = {
         yuri.size
     })
@@ -46,8 +46,6 @@ fun ScrollScrollKaScreen(viewModel: WordScrollViewModel){
     /*if (pagerState.currentPage==yuri.size){
         viewModel.generateKaseLastPageNa()
     }*/
-
-
     Box(modifier = Modifier.fillMaxSize()){
         if (yuri.isNotEmpty()){
             VerticalPager(

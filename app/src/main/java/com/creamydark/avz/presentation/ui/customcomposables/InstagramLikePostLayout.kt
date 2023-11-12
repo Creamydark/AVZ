@@ -25,9 +25,7 @@ import coil.compose.AsyncImage
 import coil.compose.AsyncImagePainter
 import coil.compose.SubcomposeAsyncImage
 import coil.compose.SubcomposeAsyncImageContent
-import java.time.Instant
-import java.time.ZoneId
-import java.time.format.DateTimeFormatter
+import com.creamydark.avz.inozetools.YenaTools
 
 @Composable
 fun InstagramLikePostLayout(
@@ -39,9 +37,7 @@ fun InstagramLikePostLayout(
     photoUrl: String,
     commentsCount: Int
 ) {
-//    val timestampInMilliseconds = System.currentTimeMillis() // Replace with your timestamp
-    val pattern = "yyyy-MM-dd HH:mm a" // Customize the format as needed
-    val timestampF = convertMillisToDateTime(timestamp,pattern)
+    val timestampF = YenaTools().convertMillisToDateTime(timestamp)
     Column(
         modifier = Modifier
     ) {
@@ -156,10 +152,4 @@ fun InstagramLikePostLayout(
 //            fontWeight = FontWeight.Bold
 //        )
     }
-}
-fun convertMillisToDateTime(milliseconds: Long, pattern: String): String {
-    val instant = Instant.ofEpochMilli(milliseconds)
-    val dateTime = instant.atZone(ZoneId.systemDefault())
-    val formatter = DateTimeFormatter.ofPattern(pattern)
-    return dateTime.format(formatter)
 }

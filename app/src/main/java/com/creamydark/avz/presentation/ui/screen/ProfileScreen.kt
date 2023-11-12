@@ -20,7 +20,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -41,9 +40,9 @@ import com.creamydark.avz.presentation.viewmodels.ProfileViewModel
 @Composable
 fun ProfileScreen(viewModel:ProfileViewModel,onclicked:(Int)->Unit) {
 
-    val currentUserData by viewModel.currentUserData.collectAsStateWithLifecycle()
+    val currentUserData by viewModel.currentFirebaseUser.collectAsStateWithLifecycle()
 
-    val profileUri = currentUserData?.photoUri
+    val profileUri = currentUserData?.photoUrl
 
     val name = currentUserData?.displayName
 
@@ -53,15 +52,14 @@ fun ProfileScreen(viewModel:ProfileViewModel,onclicked:(Int)->Unit) {
         mutableStateOf("")
     }
 
-    val userData by viewModel._userData.collectAsState()
+//    val userType by viewModel.userType.collectAsStateWithLifecycle()
 
-    userData?.student?.let {
-        userType ->
-        if (userType){
-            userTypeText = "Student"
-        }else{
-            userTypeText = "Teacher"
-        }
+    val userData by viewModel.userData.collectAsStateWithLifecycle()
+
+    if (userData?.student == true){
+        userTypeText = "Student"
+    }else{
+        userTypeText = "Teacher"
     }
 
     Column(modifier = Modifier
@@ -72,22 +70,17 @@ fun ProfileScreen(viewModel:ProfileViewModel,onclicked:(Int)->Unit) {
             text = "Options",
             style = MaterialTheme.typography.bodyLarge,
         )*/
-        Card(
-//            colors = CardDefaults.cardColors(containerColor = Color.Black.copy(alpha = 0.10f))
-        ) {
+        Card {
             LazyColumn{
-                userData?.student?.let {
-                        usertype ->
-                    if (!usertype){
-                        item {
-                            ProfileListItem(title = "Upload Words") {
-                                onclicked(0)
-                            }
+                if (!(userData?.student ?: true)){
+                    item {
+                        ProfileListItem(title = "Upload Words") {
+                            onclicked(0)
                         }
-                        item {
-                            ProfileListItem(title = "Post Announcements") {
-                                onclicked(1)
-                            }
+                    }
+                    item {
+                        ProfileListItem(title = "Post Announcements") {
+                            onclicked(1)
                         }
                     }
                 }
@@ -109,7 +102,6 @@ fun ProfileScreen(viewModel:ProfileViewModel,onclicked:(Int)->Unit) {
 }
 @Composable
 private fun ProfileHeader(profileUri : Uri?, name:String, desc:String) {
-
     Column(
         modifier = Modifier
             .fillMaxWidth()

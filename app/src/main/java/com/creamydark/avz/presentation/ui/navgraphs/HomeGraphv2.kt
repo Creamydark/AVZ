@@ -1,8 +1,11 @@
 package com.creamydark.avz.presentation.ui.navgraphs
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.launch
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.Close
@@ -12,6 +15,7 @@ import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material.icons.outlined.Person
+import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -31,8 +35,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -41,24 +47,31 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import coil.compose.AsyncImage
 import com.creamydark.avz.domain.ResultType
+import com.creamydark.avz.domain.some_api.KimChaewonAPI
 import com.creamydark.avz.presentation.ui.screen.AboutAppScreen
 import com.creamydark.avz.presentation.ui.screen.AnnouncementsScreen
 import com.creamydark.avz.presentation.ui.screen.FavoriteScreen
+import com.creamydark.avz.presentation.ui.screen.HomeScreen
 import com.creamydark.avz.presentation.ui.screen.LessonsScreen
 import com.creamydark.avz.presentation.ui.screen.ProfileScreen
 import com.creamydark.avz.presentation.ui.screen.ScrollScrollKaScreen
 import com.creamydark.avz.presentation.ui.screen.UploadPostScreen
 import com.creamydark.avz.presentation.ui.screen.UploadWordsScreen
+import com.creamydark.avz.presentation.ui.screen.WordsSearchScreen
 import com.creamydark.avz.presentation.viewmodels.AnnouncementsViewModel
 import com.creamydark.avz.presentation.viewmodels.HomeGraphViewModel
 import com.creamydark.avz.presentation.viewmodels.ProfileViewModel
 import com.creamydark.avz.presentation.viewmodels.WordScrollViewModel
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.isGranted
+import com.google.accompanist.permissions.rememberPermissionState
 import kotlinx.coroutines.launch
 
 
 private data class NavigationItemModel(val route: String, val label: String, val icon: ImageVector)
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalPermissionsApi::class)
 @Composable
 fun HomeGraphv2(
 ){
@@ -85,7 +98,22 @@ fun HomeGraphv2(
     val uploadPostResult by announcementsViewModel.resultUpload.collectAsStateWithLifecycle()
     val uploadResult by wordScrollViewModel.uploadResult.collectAsStateWithLifecycle(initialValue = ResultType.loading())
     val addFavoriteResult by wordScrollViewModel.addFavoriteResult.collectAsStateWithLifecycle(initialValue = ResultType.loading())
+
     val userData by wordScrollViewModel.userData.collectAsStateWithLifecycle()
+    val voicePermissionState = rememberPermissionState(
+        android.Manifest.permission.RECORD_AUDIO
+    )
+    var searchText by remember {
+        mutableStateOf("")
+    }
+
+    val voiceInputLauncher = rememberLauncherForActivityResult(KimChaewonAPI()) { result ->
+        if (result != null) {
+//            capturedSpeech = result
+            searchText = result
+            wordScrollViewModel.editSearch(result)
+        }
+    }
 
     var favoriteOnEditMode by remember {
         mutableStateOf(false)
@@ -93,7 +121,7 @@ fun HomeGraphv2(
 
     when(addFavoriteResult){
         is ResultType.Error -> {
-            LaunchedEffect(key1 = addFavoriteResult ){
+            LaunchedEffect(key1 = addFavoriteResult){
                 val errorMessage = (addFavoriteResult as ResultType.Error).exception.message
                 snackbarHostState.showSnackbar(errorMessage?:"Unknown Error", withDismissAction = true)
             }
@@ -158,7 +186,7 @@ fun HomeGraphv2(
                 },
                 actions = {
                     when(currentRoute){
-                        "home_screen" ->{
+                        "vocabulary_screen" ->{
                             IconButton(
                                 onClick = {
                                     navHostController.navigate("favorites_screen"){
@@ -168,6 +196,22 @@ fun HomeGraphv2(
                             ) {
                                 Icon(
                                     imageVector = Icons.Outlined.FavoriteBorder,
+                                    contentDescription = ""
+                                )
+                            }
+                            IconButton(
+                                onClick = {
+//                                    homeGraphViewModel.startListening()
+                                          /*if (voicePermissionState.status.isGranted){
+                                              voiceInputLauncher.launch()
+                                          }else{
+                                              voicePermissionState.launchPermissionRequest()
+                                          }*/
+                                    navHostController.navigate("search_word_screen")
+                                },
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Outlined.Search,
                                     contentDescription = ""
                                 )
                             }
@@ -186,6 +230,34 @@ fun HomeGraphv2(
                                 Icon(
                                     imageVector = icon,
                                     contentDescription = ""
+                                )
+                            }
+                        }
+                        "home_screen" -> {
+                            val user by profileViewModel.currentFirebaseUser.collectAsStateWithLifecycle()
+                            IconButton(
+                                onClick = {
+                                    navHostController.navigate("profile_screen") {
+                                        // Pop up to the start destination of the graph to
+                                        // avoid building up a large stack of destinations
+                                        // on the back stack as users select items
+                                        popUpTo(navHostController.graph.findStartDestination().id) {
+                                            saveState = true
+                                        }
+                                        // Avoid multiple copies of the same destination when
+                                        // reselecting the same item
+                                        launchSingleTop = true
+                                        // Restore state when reselecting a previously selected item
+                                        restoreState = true
+                                    }
+                                }
+                            ) {
+                                AsyncImage(
+                                    modifier = Modifier
+                                        .clip(CircleShape),
+                                    model = user?.photoUrl,
+                                    contentDescription = "",
+                                    contentScale = ContentScale.Crop
                                 )
                             }
                         }
@@ -248,6 +320,7 @@ fun HomeGraphv2(
     ) {
         inner ->
         //MainContent
+
         NavHost(
             navController = navHostController,
             startDestination = "home_screen",
@@ -256,7 +329,14 @@ fun HomeGraphv2(
                 .padding(bottom = inner.calculateBottomPadding(), top = inner.calculateTopPadding())
         ) {
             composable("home_screen") {
-                ScrollScrollKaScreen(viewModel = wordScrollViewModel)
+//                ScrollScrollKaScreen(viewModel = wordScrollViewModel)
+                val updatesList by announcementsViewModel.postList.collectAsStateWithLifecycle()
+                val wordList by wordScrollViewModel._wordsList.collectAsStateWithLifecycle()
+                HomeScreen(
+                    updatesList = updatesList,
+                    wordsList = wordList,
+                    navHostController = navHostController
+                )
             }
             composable("updates_screen"){
                 //announcementsViewModel
@@ -311,6 +391,27 @@ fun HomeGraphv2(
                     )
                 }
             }
+            composable("search_word_screen"){
+
+                val searchResult by wordScrollViewModel.searchResultList.collectAsStateWithLifecycle()
+                WordsSearchScreen(
+                    searchResultList = searchResult,
+                    searchText = searchText,
+                    onSearchText = {
+                        searchText = it
+                        if (it.isNotBlank()){
+                            wordScrollViewModel.editSearch(it)
+                        }
+                    },
+                    voiceBtn = {
+                        if (voicePermissionState.status.isGranted){
+                            voiceInputLauncher.launch()
+                        }else{
+                            voicePermissionState.launchPermissionRequest()
+                        }
+                    }
+                )
+            }
             composable("upload_post_screen") {
                 UploadPostScreen{
                     caption, image ->
@@ -320,11 +421,27 @@ fun HomeGraphv2(
             composable("about_screen") {
                 AboutAppScreen()
             }
+            composable("vocabulary_screen") {
+                ScrollScrollKaScreen(wordScrollViewModel)
+            }
         }
 
     }
 }
-
+/*@Composable
+@OptIn(ExperimentalPermissionsApi::class)
+private fun LaunchPermissionRequest(
+    context: Context,
+    permissionState: PermissionState
+) {
+    val requestPermissionLauncher = rememberLauncherForActivityResult(contract = ActivityResultContracts.RequestPermission() ){
+        permissionState.launchPermissionRequest()
+    }
+    lifecycleOwner.lifecycleScope.launch {
+        val result = requestPermissionLauncher.launch(permissionState.permission)
+        permissionState.updatePermissionResult(result)
+    }
+}*/
 
 @Composable
 fun currentRoute(navController: NavHostController): String {
@@ -335,14 +452,16 @@ fun currentRoute(navController: NavHostController): String {
 
 fun getTitle(route: String?): String {
     return when (route) {
-        "home_screen" -> "Vocabulary"
+        "home_screen" -> "Home"
         "lessons_screen" -> "Check your lessons"
         "favorites_screen" -> "Your Favorites"
+        "vocabulary_screen" -> "Vocabulary"
         "profile_screen" -> "My Profile"
         "upload_words_screen" -> "Upload Words"
         "about_screen" -> "About"
         "updates_screen" -> "Updates"
         "upload_post_screen" -> "New Post"
+        "search_word_screen" -> "Search Words"
 //        "announcements" -> "Announcements"
         else -> "Loading" // Default title
     }

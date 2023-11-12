@@ -7,5 +7,6 @@ data class AnnouncementPostData(
     val timestamp: Long=0,
     val likesCount: Int=0,
     val commentsCount: Int=0,
-    val profilePhoto: String=""
+    val profilePhoto: String="",
+    val imagePost: String=""
 )

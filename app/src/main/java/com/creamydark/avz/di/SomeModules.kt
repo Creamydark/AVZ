@@ -84,5 +84,4 @@ object SomeModules {
     fun getAllAnnouncementsUseCase(repository: AnnouncementRepository): GetAllAnnouncementsUseCase{
         return GetAllAnnouncementsUseCase(repository)
     }
-
 }

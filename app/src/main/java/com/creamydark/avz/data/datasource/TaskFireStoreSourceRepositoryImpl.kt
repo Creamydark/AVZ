@@ -4,6 +4,7 @@ import com.creamydark.avz.domain.ResultType
 import com.creamydark.avz.domain.model.UserData
 import com.creamydark.avz.domain.model.WordsDataModel
 import com.creamydark.avz.domain.some_api.JoYuriAuthenticationAPI
+import com.creamydark.avz.inozienum.UserAuthenticationState
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.toObject
 import kotlinx.coroutines.channels.awaitClose
@@ -39,6 +40,7 @@ class TaskFireStoreSourceRepositoryImpl @Inject constructor(
                 val collection = db.collection("users")
                 val document = collection.document(email!!).set(data)
                 document.await()
+                joYuriAuthenticationAPI.updateUserAuthenticationState(UserAuthenticationState.Authenticated)
                 trySend(ResultType.success("Successfully Update"))
                 close()
             }catch (e:Throwable){
@@ -84,10 +86,9 @@ class TaskFireStoreSourceRepositoryImpl @Inject constructor(
             }
         }
     }
-
     override suspend fun updateFavoriteWords(email: String, title: String): Flow<ResultType<String>> {
         return callbackFlow {
-            val favoriteWords = joYuriAuthenticationAPI.getFavoriteWords()?:emptyList()
+            val favoriteWords = joYuriAuthenticationAPI.getUserFavoriteList()
             val newFavoriteWords = favoriteWords.toMutableList()
             try {
                 if (!newFavoriteWords.contains(title)){
@@ -118,6 +119,4 @@ class TaskFireStoreSourceRepositoryImpl @Inject constructor(
             awaitClose {  }
         }
     }
-
-
 }

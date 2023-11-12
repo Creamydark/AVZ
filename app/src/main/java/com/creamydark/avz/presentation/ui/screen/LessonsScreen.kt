@@ -15,6 +15,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.creamydark.avz.domain.model.SomeItem
@@ -22,13 +23,16 @@ import com.creamydark.avz.domain.model.SomeItem
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LessonsScreen(){
+fun LessonsScreen(
+){
     val itemss = arrayListOf<SomeItem>()
 
     val desccc = "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book."
 
-    for (a in 1..5){
-        itemss.add(SomeItem(title = "Lesson $a", description = desccc))
+    SideEffect {
+        for (a in 1..5){
+            itemss.add(SomeItem(title = "Lesson $a", description = desccc))
+        }
     }
     Scaffold(
         Modifier.fillMaxSize()
@@ -55,8 +59,8 @@ fun LessonsScreen(){
 
 
 @Composable
-fun LessonListItem(title:String,desc:String){
-    Card(modifier = Modifier
+fun LessonListItem(title:String,desc:String,modifier: Modifier = Modifier){
+    Card(modifier = modifier
         .fillMaxWidth()) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
