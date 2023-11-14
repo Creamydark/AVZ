@@ -3,7 +3,7 @@ package com.creamydark.avz.data.repository
 import android.util.Log
 import com.creamydark.avz.domain.model.UserData
 import com.creamydark.avz.domain.some_api.JoYuriAuthenticationAPI
-import com.creamydark.avz.inozienum.UserAuthenticationState
+import com.creamydark.avz.enozienum.UserAuthenticationState
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.firebase.auth.FirebaseAuth

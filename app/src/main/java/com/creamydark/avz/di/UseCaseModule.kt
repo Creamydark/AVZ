@@ -6,6 +6,7 @@ import com.creamydark.avz.data.datasource.TaskFireStoreSourceRepository
 import com.creamydark.avz.data.repository.GoogleClientSignInRepository
 import com.creamydark.avz.domain.usecase.AddUserExtraDataUseCases
 import com.creamydark.avz.domain.usecase.AddWordsFirestoreUseCase
+import com.creamydark.avz.domain.usecase.DeleteUpdatePostFirestore
 import com.creamydark.avz.domain.usecase.FirebaseAuthListenerUseCase
 import com.creamydark.avz.domain.usecase.GenerateRandomWordsUseCase
 import com.creamydark.avz.domain.usecase.GetAllWordsFromFirestoreUseCase
@@ -25,6 +26,11 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object UseCaseModule {
 
+    @Provides
+    @Singleton
+    fun DeleteUpdatePostFirestoreUseCase(repository: AnnouncementRepository):DeleteUpdatePostFirestore{
+        return DeleteUpdatePostFirestore(repository)
+    }
 
     @Provides
     @Singleton

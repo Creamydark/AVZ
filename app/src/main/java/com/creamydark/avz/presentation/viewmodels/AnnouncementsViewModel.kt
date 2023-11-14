@@ -2,10 +2,12 @@ package com.creamydark.avz.presentation.viewmodels
 
 import android.net.Uri
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
 import com.creamydark.avz.domain.ResultType
 import com.creamydark.avz.domain.model.AnnouncementPostData
 import com.creamydark.avz.domain.some_api.JoYuriAuthenticationAPI
+import com.creamydark.avz.domain.usecase.DeleteUpdatePostFirestore
 import com.creamydark.avz.domain.usecase.GetAllAnnouncementsUseCase
 import com.creamydark.avz.domain.usecase.GetPostImageUseCase
 import com.creamydark.avz.domain.usecase.UploadAnnouncementPostUseCase
@@ -15,6 +17,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -25,16 +28,18 @@ class AnnouncementsViewModel @Inject constructor(
     private val getAllAnnouncementsUseCase: GetAllAnnouncementsUseCase,
     private val getPostImageUseCase: GetPostImageUseCase,
     private val firebaseStorage: FirebaseStorage,
+    private val deleteUpdatePostFirestore: DeleteUpdatePostFirestore
 ):ViewModel() {
 
+    val userData = joYuriAuthenticationAPI.userData
     val emailUploader  = joYuriAuthenticationAPI.getEmail()?:""
     val displayName  = joYuriAuthenticationAPI.getName()?:""
-
     val profilePhoto = joYuriAuthenticationAPI.getPhotUri()
-
     private val _postList =MutableStateFlow<List<AnnouncementPostData>>(emptyList())
     val postList = _postList.asStateFlow()
 
+    private val _deleteResult = MutableStateFlow<ResultType<String>>(ResultType.loading())
+    val deleteResult = _deleteResult.asStateFlow()
     private val _resultUpload= MutableStateFlow<ResultType<String>>(ResultType.loading())
     val resultUpload = _resultUpload.asStateFlow()
     init {
@@ -51,7 +56,9 @@ class AnnouncementsViewModel @Inject constructor(
 
                     }
                     is ResultType.Success -> {
-                        _postList.value = result.data
+                        _postList.value = result.data.sortedBy {
+                            it.timestamp
+                        }
                     }
                 }
             }
@@ -63,6 +70,16 @@ class AnnouncementsViewModel @Inject constructor(
             uploadAnnouncementPostUseCase.invoke(displayName, emailUploader, caption, timestamp, image, profilePhoto).collectLatest {
                 result->
                 _resultUpload.value = result
+            }
+        }
+    }
+
+    fun deletePost(postData: AnnouncementPostData){
+        viewModelScope.launch(Dispatchers.IO) {
+            deleteUpdatePostFirestore.invokeDelete(postData).apply {
+                _deleteResult.update {
+                    this
+                }
             }
         }
     }

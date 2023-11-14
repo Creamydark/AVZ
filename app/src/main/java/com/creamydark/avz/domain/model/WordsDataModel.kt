@@ -4,6 +4,6 @@ data class WordsDataModel(
     val title:String="",
     val description:String="",
     val example:String="",
-    val id:Int = 0,
+    val id:Long = 0,
     val uploader:String = ""
 )

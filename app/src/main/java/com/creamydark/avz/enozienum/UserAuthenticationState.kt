@@ -1,4 +1,4 @@
-package com.creamydark.avz.inozienum
+package com.creamydark.avz.enozienum
 
 enum class UserAuthenticationState {
     Authenticated,

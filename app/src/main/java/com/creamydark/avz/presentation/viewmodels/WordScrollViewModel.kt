@@ -72,7 +72,9 @@ class WordScrollViewModel @Inject constructor(
             getAllWordsFromFirestoreUseCase.invoke().collectLatest {
                 result->
                 wordsList.update {
-                    result
+                    result.sortedBy {
+                        it.id
+                    }
                 }
             }
             /*addWordsFirestoreUseCase.getAllWords().collect{
@@ -116,11 +118,13 @@ class WordScrollViewModel @Inject constructor(
         word:String,description:String,example:String
     ){
         val data = if (word.isNotBlank()&&description.isNotBlank()&&example.isNotBlank()){
+            val timestamp = System.currentTimeMillis()
             WordsDataModel(
                 title = word,
                 description = description,
                 example = example,
-                uploader = email?:"none"
+                uploader = email?:"none",
+                id = timestamp
             )
         }else{
             null

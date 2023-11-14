@@ -5,15 +5,29 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material.icons.outlined.Edit
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -25,52 +39,73 @@ import coil.compose.AsyncImage
 import coil.compose.AsyncImagePainter
 import coil.compose.SubcomposeAsyncImage
 import coil.compose.SubcomposeAsyncImageContent
-import com.creamydark.avz.inozetools.YenaTools
+import com.creamydark.avz.enozItools.YenaTools
 
 @Composable
 fun InstagramLikePostLayout(
     username: String,
     caption: String,
     timestamp: Long,
-    likesCount: Int,
+    likesCount: Int=0,
     model: Any?,
     photoUrl: String,
-    commentsCount: Int
+    commentsCount: Int=0,
+    userType:Boolean=true,
+    onSelectDropDown: (p: Int) -> Unit
 ) {
     val timestampF = YenaTools().convertMillisToDateTime(timestamp)
+
     Column(
         modifier = Modifier
     ) {
         // User information
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            // Avatar
-            AsyncImage(
+        Box(modifier = Modifier
+            .padding(16.dp)
+            .fillMaxWidth()
+        ){
+            Row(
                 modifier = Modifier
-                    .size(40.dp)
-                    .clip(CircleShape)
-                    .background(Color.Gray),
-                model = photoUrl,
-                contentDescription = "",
-                contentScale = ContentScale.Crop
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-
-            // Username and timestamp
-            Column {
-                Text(
-                    text = username,
-                    style = MaterialTheme.typography.titleSmall
+                    .fillMaxWidth()
+                    .align(alignment = Alignment.CenterStart),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                // Avatar
+                AsyncImage(
+                    modifier = Modifier
+                        .size(40.dp)
+                        .clip(CircleShape)
+                        .background(Color.Gray),
+                    model = photoUrl,
+                    contentDescription = "",
+                    contentScale = ContentScale.Crop
                 )
-                Text(
-                    text = timestampF,
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
-                )
+                Spacer(modifier = Modifier.width(8.dp))
+                // Username and timestamp
+                Column {
+                    Text(
+                        text = username,
+                        style = MaterialTheme.typography.titleSmall
+                    )
+                    Text(
+                        text = timestampF,
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                    )
+                }
+            }
+            if (!userType){
+                var expandedMenu by remember {
+                    mutableStateOf(false)
+                }
+                CustomDropDownMenu(
+                    modifier = Modifier.align(alignment = Alignment.BottomEnd),
+                    onExpanded = {
+                        expandedMenu = it
+                    },
+                    expanded = expandedMenu,
+                ){
+                    onSelectDropDown(it)
+                }
             }
         }
 
@@ -88,7 +123,7 @@ fun InstagramLikePostLayout(
         SubcomposeAsyncImage(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(300.dp),
+                .aspectRatio(1f),
             model = model,
             contentDescription = "",
             contentScale = ContentScale.Crop
@@ -112,7 +147,7 @@ fun InstagramLikePostLayout(
                     SubcomposeAsyncImageContent()
                 }
                 is AsyncImagePainter.State.Error -> {
-                    
+
                 }
             }
         }
@@ -151,5 +186,52 @@ fun InstagramLikePostLayout(
 //                .fillMaxWidth(),
 //            fontWeight = FontWeight.Bold
 //        )
+    }
+}
+
+@Composable
+private fun CustomDropDownMenu(
+    modifier: Modifier=Modifier,
+    onExpanded:(Boolean)->Unit,
+    expanded:Boolean=false,
+    onSelectDropDown:(p:Int)->Unit
+) {
+    Box(
+        modifier = modifier
+            .wrapContentSize(Alignment.TopStart)
+    ) {
+        IconButton(onClick = { onExpanded(true) }) {
+            Icon(Icons.Default.MoreVert, contentDescription = "Localized description")
+        }
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { onExpanded(false) }
+        ) {
+            DropdownMenuItem(
+                text = { Text("Edit") },
+                onClick = {
+                    onExpanded(false)
+                },
+                leadingIcon = {
+                    Icon(
+                        Icons.Outlined.Edit,
+                        contentDescription = null,
+                    )
+                },
+            )
+            DropdownMenuItem(
+                text = { Text("Delete") },
+                onClick = {
+                    onExpanded(false)
+                    onSelectDropDown(1)
+                },
+                leadingIcon = {
+                    Icon(
+                        Icons.Outlined.Delete,
+                        contentDescription = null,
+                    )
+                },
+            )
+        }
     }
 }

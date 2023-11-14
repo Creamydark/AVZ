@@ -18,6 +18,7 @@ fun AnnouncementsScreen(
     viewModel: AnnouncementsViewModel
 ) {
     val postList by viewModel.postList.collectAsStateWithLifecycle()
+    val userData by viewModel.userData.collectAsStateWithLifecycle()
     LazyColumn(modifier = Modifier.fillMaxSize()){
         if (postList.isEmpty()){
             item {
@@ -25,7 +26,7 @@ fun AnnouncementsScreen(
             }
         }
         items(
-            postList,
+            postList.reversed(),
             key = {
                 it.timestamp
             },
@@ -35,11 +36,21 @@ fun AnnouncementsScreen(
                 username = item.displayName,
                 caption = item.caption,
                 timestamp = item.timestamp,
-                likesCount = item.likesCount,
                 model = item.imagePost,
                 photoUrl = item.profilePhoto,
-                commentsCount =item.commentsCount
-            )
+                userType = userData?.student?:true
+            ){
+                pos->
+                when(pos){
+                    0->{
+                    }
+                    1->{
+                        viewModel.deletePost(
+                            item
+                        )
+                    }
+                }
+            }
         }
     }
 }

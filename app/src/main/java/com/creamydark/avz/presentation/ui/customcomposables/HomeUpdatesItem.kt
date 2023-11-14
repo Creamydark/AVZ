@@ -24,7 +24,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
-import com.creamydark.avz.inozetools.YenaTools
+import com.creamydark.avz.enozItools.YenaTools
 
 @Composable
 fun HomeUpdatesItem(
@@ -66,7 +66,8 @@ fun HomeUpdatesItem(
                 color = Color.White,
                 text = title.ifBlank { "No Caption" },
                 fontSize = 12.sp,
-                style = MaterialTheme.typography.titleMedium
+                style = MaterialTheme.typography.titleSmall,
+                maxLines = 2
             )
             Text(
                 modifier = Modifier.padding(horizontal = 8.dp),

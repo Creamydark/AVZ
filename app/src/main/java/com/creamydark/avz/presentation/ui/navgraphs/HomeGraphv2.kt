@@ -99,6 +99,30 @@ fun HomeGraphv2(
     val uploadResult by wordScrollViewModel.uploadResult.collectAsStateWithLifecycle(initialValue = ResultType.loading())
     val addFavoriteResult by wordScrollViewModel.addFavoriteResult.collectAsStateWithLifecycle(initialValue = ResultType.loading())
 
+    val deletePostResult by announcementsViewModel.deleteResult.collectAsStateWithLifecycle()
+    when(deletePostResult){
+        is ResultType.Error -> {
+            val message = (deletePostResult as ResultType.Error)
+            LaunchedEffect(
+                key1 = message,
+                block = {
+                    snackbarHostState.showSnackbar(message = message.exception.message?:"Unknown Error", withDismissAction = true)
+                },
+            )
+        }
+        ResultType.Loading -> {
+
+        }
+        is ResultType.Success -> {
+            val message = (deletePostResult as ResultType.Success<String>).data
+            LaunchedEffect(
+                key1 = message,
+                block = {
+                    snackbarHostState.showSnackbar(message = message, withDismissAction = true)
+                },
+            )
+        }
+    }
     val userData by wordScrollViewModel.userData.collectAsStateWithLifecycle()
     val voicePermissionState = rememberPermissionState(
         android.Manifest.permission.RECORD_AUDIO

@@ -56,7 +56,7 @@ fun UploadWordsScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(8.dp)
-                .weight(1.5f),
+                .weight(0.2f),
             value = word,
             onValueChange = {
                 word = it
@@ -70,7 +70,7 @@ fun UploadWordsScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(8.dp)
-                .weight(2f),
+                .weight(0.3f),
             value = description,
             onValueChange = {
                 description = it
@@ -84,7 +84,7 @@ fun UploadWordsScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(8.dp)
-                .weight(4f),
+                .weight(0.6f),
             value = example,
             onValueChange = {
                example = it
@@ -103,8 +103,7 @@ fun UploadWordsScreen(
             },
             modifier = Modifier
                 .fillMaxWidth()
-                .height(48.dp)
-                .weight(0.8f)
+                .weight(0.1f)
         ) {
             Text(text = "Upload")
         }

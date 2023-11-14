@@ -3,26 +3,31 @@ package com.creamydark.avz.presentation.ui.navgraphs
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.creamydark.avz.inozienum.UserAuthenticationState
+import com.creamydark.avz.enozienum.UserAuthenticationState
 import com.creamydark.avz.presentation.ui.screen.LoginScreen3
 import com.creamydark.avz.presentation.ui.screen.SplashScreen
 import com.creamydark.avz.presentation.ui.screen.UserTypeSelectionScreen
 import com.creamydark.avz.presentation.viewmodels.RootNavGraphViewModel
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.common.api.ApiException
+import kotlin.math.min
 
 
 @Composable
-fun SetUpNavGraph (navHostController: NavHostController, viewmodel: RootNavGraphViewModel){
+fun SetUpNavGraph (modifier: Modifier = Modifier,navHostController: NavHostController, viewmodel: RootNavGraphViewModel){
 
     val context = LocalContext.current
 
@@ -45,9 +50,9 @@ fun SetUpNavGraph (navHostController: NavHostController, viewmodel: RootNavGraph
     val authState by viewmodel.getAuthState().collectAsStateWithLifecycle()
 
     NavHost(
-        modifier = Modifier.fillMaxSize(),
+        modifier = modifier,
         navController = navHostController,
-        startDestination = RootNavScreens.Splash.route
+        startDestination = RootNavScreens.Splash.route,
     ){
         composable(route = RootNavScreens.Splash.route){
            SplashScreen{

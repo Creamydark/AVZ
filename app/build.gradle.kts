@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.konan.properties.Properties
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
@@ -6,10 +8,15 @@ plugins {
     id("com.google.dagger.hilt.android")
 //    id("com.google.relay") version "0.3.09"
 }
-
 android {
     signingConfigs {
         getByName("debug") {
+            storeFile = file("C:\\Users\\marcl\\AndroidStudioProjects\\AVZ\\keystore.jks")
+            storePassword = "123456"
+            keyAlias = "key0"
+            keyPassword = "123456"
+        }
+        create("release") {
             storeFile = file("C:\\Users\\marcl\\AndroidStudioProjects\\AVZ\\keystore.jks")
             storePassword = "123456"
             keyAlias = "key0"
@@ -23,26 +30,29 @@ android {
         applicationId = "com.creamydark.avz"
         minSdk = 29
         targetSdk = 34
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = getIncrementedVersionCode()
+        versionName = "1.${getIncrementedVersionCode()}"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
             useSupportLibrary = true
         }
+
+
     }
+
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
             // Enables resource shrinking, which is performed by the
             // Android Gradle plugin.
-            isShrinkResources = false
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-            signingConfig = signingConfigs.getByName("debug")
+            signingConfig = signingConfigs.getByName("release")
         }
     }
     compileOptions {
@@ -83,7 +93,7 @@ dependencies {
 
     implementation("androidx.core:core-splashscreen:1.0.1")
     implementation("com.google.dagger:hilt-android:2.44")
-    implementation("androidx.hilt:hilt-navigation-compose:1.0.0")
+    implementation("androidx.hilt:hilt-navigation-compose:1.1.0")
     kapt("com.google.dagger:hilt-android-compiler:2.44")
 
 
@@ -139,4 +149,29 @@ dependencies {
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
+}
+
+fun getIncrementedVersionCode(): Int {
+    val versionPropertiesFile = File("version.properties")
+    val properties = Properties()
+
+    // Load existing properties
+    if (versionPropertiesFile.exists()) {
+        versionPropertiesFile.inputStream().use { properties.load(it) }
+    }
+
+    // Get the current version code
+    val currentVersionCode = properties.getProperty("versionCode", "1").toInt()
+
+    // Increment the version code by 1
+    val newVersionCode = currentVersionCode + 1
+
+    // Print the new version code for reference
+    println("New Version Code: $newVersionCode")
+
+    // Save the new version code to properties file
+    properties.setProperty("versionCode", newVersionCode.toString())
+    versionPropertiesFile.outputStream().use { properties.store(it, null) }
+
+    return newVersionCode
 }

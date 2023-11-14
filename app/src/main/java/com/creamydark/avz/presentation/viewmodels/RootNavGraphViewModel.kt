@@ -11,7 +11,7 @@ import com.creamydark.avz.domain.some_api.JoYuriAuthenticationAPI
 import com.creamydark.avz.domain.usecase.AddUserExtraDataUseCases
 import com.creamydark.avz.domain.usecase.FirebaseAuthListenerUseCase
 import com.creamydark.avz.domain.usecase.SignInUserUsingCredentialsUseCases
-import com.creamydark.avz.inozienum.UserAuthenticationState
+import com.creamydark.avz.enozienum.UserAuthenticationState
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import dagger.hilt.android.lifecycle.HiltViewModel

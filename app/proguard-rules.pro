@@ -19,3 +19,13 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+-keepattributes Signature
+-keepattributes *Annotation*
+#-keepclassmembers class com.creamydark.avz**{*;}
+-keep class com.creamydark**{ *; }
+#-keep class com.creamydark.avz.domain.model.UserData{*;}
+#-keep class dagger.hilt.** { *; }
+#-keepclassmembers class dagger.hilt.** { *; }
+#-keep class javax.inject.** { *; }
+#-keep class dagger.internal.codegen.** { *; }
+#-keep class dagger.internal.** { *; }

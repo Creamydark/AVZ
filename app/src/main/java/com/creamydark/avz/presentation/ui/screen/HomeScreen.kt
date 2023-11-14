@@ -58,7 +58,7 @@ fun HomeScreen(
         item {
             BigBannerWithAutoScrollLayoutComposable(
                 modifier = Modifier.padding(horizontal = 16.dp),
-                list = wordsList.reversed(),
+                list = wordsList,
                 onBannerClicked = {
                     navHostController.navigate("vocabulary_screen")
                 }

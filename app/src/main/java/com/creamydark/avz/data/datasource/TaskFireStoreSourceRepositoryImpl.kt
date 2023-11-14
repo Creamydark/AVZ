@@ -4,7 +4,7 @@ import com.creamydark.avz.domain.ResultType
 import com.creamydark.avz.domain.model.UserData
 import com.creamydark.avz.domain.model.WordsDataModel
 import com.creamydark.avz.domain.some_api.JoYuriAuthenticationAPI
-import com.creamydark.avz.inozienum.UserAuthenticationState
+import com.creamydark.avz.enozienum.UserAuthenticationState
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.toObject
 import kotlinx.coroutines.channels.awaitClose

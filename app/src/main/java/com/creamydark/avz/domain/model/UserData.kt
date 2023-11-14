@@ -5,6 +5,6 @@ data class UserData(
     val student: Boolean? = false,
     val email: String? = "",
     val uid : String? = "",
-    val name : String? ="",
+    val name : String? = "",
     val favoriteWords :List<String> = emptyList()
 )

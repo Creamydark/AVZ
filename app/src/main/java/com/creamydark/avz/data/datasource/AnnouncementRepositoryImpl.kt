@@ -34,7 +34,7 @@ class AnnouncementRepositoryImpl @Inject constructor(
                 val ref =firebaseStorage.reference.child("POSTS-ANNOUNCEMENTS/$emailUploader/$timestamp/image-post.jpg")
 //                val task = ref.putFile(image!!).await()
                 if (image != null){
-                    val compressedImage = compressImage(image, 60,context)
+                    val compressedImage = compressImage(image,context)
                     val task = ref.putBytes(compressedImage).await()
                     trySend(ResultType.success("Image upload successfully"))
                     if (task.task.isSuccessful){
@@ -84,12 +84,33 @@ class AnnouncementRepositoryImpl @Inject constructor(
             ResultType.error(e)
         }
     }
-    private fun compressImage(imageUri: Uri, quality: Int,context: Context): ByteArray {
+
+    override suspend fun deletePost(postData: AnnouncementPostData): ResultType<String> {
+        return try {
+            ResultType.loading()
+            val stor =firebaseStorage.reference.child("POSTS-ANNOUNCEMENTS/${postData.emailUploader}/${postData.timestamp}/image-post.jpg")
+            stor.delete().await().also {
+                val ref = firestore.collection("Announcements-Post")
+                val query = ref.document("${postData.emailUploader}-${postData.timestamp}").delete()
+                query.await()
+            }
+            ResultType.success("Post Deleted Successfully")
+        }catch (e:Exception){
+            ResultType.error(e)
+        }
+    }
+
+    private fun compressImage(imageUri: Uri,context: Context): ByteArray {
         val bitmap = BitmapFactory.decodeStream(context.contentResolver.openInputStream(imageUri))
         // Create a new bitmap with the desired quality
         val compressedBitmap = Bitmap.createScaledBitmap(bitmap, bitmap.width / 2, bitmap.height / 2, false)
         // Convert the compressed bitmap to a byte array
         val outputStream = ByteArrayOutputStream()
+        val quality = if(bitmap.height>=300||bitmap.width>=300){
+            70
+        }else{
+            100
+        }
         compressedBitmap.compress(Bitmap.CompressFormat.JPEG, quality, outputStream)
         return outputStream.toByteArray()
     }

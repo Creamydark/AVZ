@@ -1,7 +1,7 @@
 package com.creamydark.avz.domain.some_api
 
 import com.creamydark.avz.domain.model.UserData
-import com.creamydark.avz.inozienum.UserAuthenticationState
+import com.creamydark.avz.enozienum.UserAuthenticationState
 import com.google.firebase.auth.FirebaseUser
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
