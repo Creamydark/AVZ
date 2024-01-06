@@ -33,21 +33,18 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.creamydark.avz.R
 import com.creamydark.avz.presentation.viewmodels.ProfileViewModel
 
 @Composable
-fun ProfileScreen(viewModel:ProfileViewModel,onclicked:(Int)->Unit) {
+fun ProfileScreen(viewModel:ProfileViewModel,navHostController: NavHostController,signOutClick:()->Unit) {
 
     val currentUserData by viewModel.currentFirebaseUser.collectAsStateWithLifecycle()
-
     val profileUri = currentUserData?.photoUrl
-
     val name = currentUserData?.displayName
-
     val email = currentUserData?.email
-
     var userTypeText by remember {
         mutableStateOf("")
     }
@@ -70,30 +67,62 @@ fun ProfileScreen(viewModel:ProfileViewModel,onclicked:(Int)->Unit) {
             text = "Options",
             style = MaterialTheme.typography.bodyLarge,
         )*/
-        Card {
-            LazyColumn{
-                if (!(userData?.student ?: true)){
-                    item {
-                        ProfileListItem(title = "Upload Words") {
-                            onclicked(0)
-                        }
-                    }
-                    item {
-                        ProfileListItem(title = "Post Announcements") {
-                            onclicked(1)
+        LazyColumn{
+            if (userData?.student == false){
+                item {
+                    Text(text = "Publish things", style = MaterialTheme.typography.bodySmall)
+                }
+                item {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Card {
+                        Column(Modifier.fillMaxWidth()) {
+                            ProfileListItem(title = "Words") {
+                                navHostController.navigate(route = "upload_words_screen"){
+                                    launchSingleTop = true
+                                }
+                            }
+                            ProfileListItem(title = "Updates") {
+                                navHostController.navigate(route = "upload_post_screen"){
+                                    launchSingleTop = true
+                                }
+                            }
+                            ProfileListItem(title = "Lessons") {
+                                navHostController.navigate(route = "upload_lessons_screen"){
+                                    launchSingleTop = true
+                                    restoreState = false
+                                }
+                            }
                         }
                     }
                 }
-                item {
+            }
+            item {
+                Spacer(modifier = Modifier.height(16.dp))
+            }
+            item {
+                Text(text = "Information", style = MaterialTheme.typography.bodySmall)
+            }
+            item {
+                Spacer(modifier = Modifier.height(8.dp))
+                Card {
                     ProfileListItem(title = "About") {
-                        onclicked(2)
-
+                        navHostController.navigate(route = "about_screen"){
+                            launchSingleTop = true
+                        }
                     }
                 }
-                item {
+            }
+            item {
+                Spacer(modifier = Modifier.height(16.dp))
+            }
+            item {
+                Text(text = "Account", style = MaterialTheme.typography.bodySmall)
+            }
+            item {
+                Spacer(modifier = Modifier.height(8.dp))
+                Card {
                     ProfileListItem(title = "Sign Out") {
-                        onclicked(3)
-
+                        signOutClick()
                     }
                 }
             }

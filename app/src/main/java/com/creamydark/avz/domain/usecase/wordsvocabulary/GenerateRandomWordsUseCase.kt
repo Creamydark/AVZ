@@ -1,7 +1,7 @@
-package com.creamydark.avz.domain.usecase
+package com.creamydark.avz.domain.usecase.wordsvocabulary
 
 import com.creamydark.avz.data.datasource.RandomWordsRepository
-import com.creamydark.avz.domain.ResultType
+import com.creamydark.avz.domain.model.ResultType
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 

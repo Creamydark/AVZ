@@ -1,6 +1,7 @@
 package com.creamydark.avz.data.repository
 
 import android.util.Log
+import com.creamydark.avz.domain.model.ResultType
 import com.creamydark.avz.domain.model.UserData
 import com.creamydark.avz.domain.some_api.JoYuriAuthenticationAPI
 import com.creamydark.avz.enozienum.UserAuthenticationState
@@ -31,7 +32,6 @@ class GoogleClientSignInRepositoryImpl @Inject constructor(
                 auth->
             val currentUser = auth.currentUser
             if (currentUser != null){
-                joYuriAuthenticationAPI.updateUserAuthenticationState(UserAuthenticationState.Authenticated)
                 joYuriAuthenticationAPI.updateCurrentFirebaseUser(currentUser)
                 currentUser.email?.let {
                     email->
@@ -40,8 +40,10 @@ class GoogleClientSignInRepositoryImpl @Inject constructor(
                         val userData = value?.toObject(UserData::class.java)
                         if (userData==null){
                             joYuriAuthenticationAPI.updateUserAuthenticationState(UserAuthenticationState.OnRegisterState)
+                        }else{
+                            joYuriAuthenticationAPI.updateUserData(userData)
+                            joYuriAuthenticationAPI.updateUserAuthenticationState(UserAuthenticationState.Authenticated)
                         }
-                        joYuriAuthenticationAPI.updateUserData(userData)
                     }
                 }
             }
@@ -63,5 +65,42 @@ class GoogleClientSignInRepositoryImpl @Inject constructor(
             awaitClose()
         }
     }
+
+    override suspend fun addOrRemoveFavoriteWord(
+        email: String,
+        word: String
+    ): Flow<ResultType<String>> {
+        return callbackFlow {
+            val ref = db.collection("users").document(email)
+            ref.get().addOnSuccessListener { document ->
+                val currentList = document.get("favoriteWords") as? ArrayList<String> ?: ArrayList()
+                if (word !in currentList) {
+                    currentList.add(word)
+                } else {
+                    currentList.remove(word)
+                }
+                ref.update("favoriteWords", currentList).addOnSuccessListener {
+                    trySend(ResultType.success("$word added to favorites"))
+                }
+            }
+            close()
+            awaitClose {
+
+            }
+        }
+    }
+
+    override suspend fun addUserExtraData(data: UserData): ResultType<String> {
+        return try {
+            if (data.email == null){
+                throw Exception("Invalid email")
+            }
+            db.collection("users").document(data.email).set(data).await()
+            ResultType.success("Registered successfully")
+        }catch (e:Exception){
+            ResultType.error(e)
+        }
+    }
+
 
 }

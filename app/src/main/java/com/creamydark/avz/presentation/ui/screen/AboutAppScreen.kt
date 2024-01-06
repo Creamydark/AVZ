@@ -29,7 +29,7 @@ fun AboutAppScreen(){
                         title = "Description",
                         desc = stringResource(id = R.string.app_capstone_title)
                     )
-                    Spacer(modifier = Modifier.size(16.dp))
+                    /*Spacer(modifier = Modifier.size(16.dp))
 
                     LessonListItem(
                         title = "Exclusive to Android",
@@ -40,7 +40,7 @@ fun AboutAppScreen(){
                     LessonListItem(
                         title = "Powered by Jetpack Compose",
                         desc = stringResource(id = R.string.powered_by_jetpack_compose)
-                    )
+                    )*/
                 }
             }
         }

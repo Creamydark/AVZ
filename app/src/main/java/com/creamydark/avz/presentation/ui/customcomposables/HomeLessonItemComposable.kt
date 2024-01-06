@@ -19,16 +19,17 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.creamydark.avz.enozItools.YenaTools
+import java.util.Date
 
 @Composable
 fun HomeLessonItemComposable(
+    modifier: Modifier= Modifier,
     title: String= "",
-    date:Long=0
+    date: Date = Date()
 ) {
-    Column(modifier = Modifier
+    Column(modifier = modifier
         .height(128.dp)
         .width(132.dp)
-
         .background(
             color = Color(0xff323232),
             shape = RoundedCornerShape(16.dp)
@@ -43,7 +44,7 @@ fun HomeLessonItemComposable(
         )
         Text(
             color = Color.White.copy(alpha = 0.7f),
-            text = YenaTools().convertMillisToDateTime(date),
+            text = YenaTools().convertMillisToDateTime(date.time),
             fontSize = 8.sp
         )
     }

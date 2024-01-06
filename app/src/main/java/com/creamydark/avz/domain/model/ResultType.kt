@@ -1,4 +1,4 @@
-package com.creamydark.avz.domain
+package com.creamydark.avz.domain.model
 
 sealed class ResultType<out T> {
     data class Success<out T>(val data: T) : ResultType<T>()

@@ -1,12 +1,14 @@
 package com.creamydark.avz.di
 
 import android.content.Context
-import com.creamydark.avz.data.datasource.AnnouncementRepository
-import com.creamydark.avz.data.datasource.AnnouncementRepositoryImpl
-import com.creamydark.avz.data.datasource.TaskFireStoreSourceRepository
-import com.creamydark.avz.data.datasource.TaskFireStoreSourceRepositoryImpl
 import com.creamydark.avz.data.repository.GoogleClientSignInRepository
 import com.creamydark.avz.data.repository.GoogleClientSignInRepositoryImpl
+import com.creamydark.avz.data.repository.LessonsFirebaseRepository
+import com.creamydark.avz.data.repository.LessonsFirebaseRepositoryImpl
+import com.creamydark.avz.data.repository.UpdatesFirestoreRepository
+import com.creamydark.avz.data.repository.UpdatesFirestoreRepositoryImpl
+import com.creamydark.avz.data.repository.WordsFirestoreRepository
+import com.creamydark.avz.data.repository.WordsFirestoreRepositoryImpl
 import com.creamydark.avz.domain.some_api.JoYuriAuthenticationAPI
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.firebase.auth.FirebaseAuth
@@ -49,15 +51,31 @@ object RepositoryModule {
             db = fireStoreDB()
         )
     }
+
     @Provides
     @Singleton
-    fun provideTaskFireStoreSourceRepository(context: Context,joYuriAuthenticationAPI: JoYuriAuthenticationAPI): TaskFireStoreSourceRepository{
-        return TaskFireStoreSourceRepositoryImpl( db = fireStoreDB(),joYuriAuthenticationAPI)
-    }
-    @Provides
-    @Singleton
-    fun announcementsRepository(context: Context):AnnouncementRepository{
-        return AnnouncementRepositoryImpl(fireStoreDB(), firebaseStorage(), context = context)
+    fun wordsFirestoreRepository(): WordsFirestoreRepository {
+        return WordsFirestoreRepositoryImpl(
+            fireStoreDB()
+        )
     }
 
+    @Provides
+    @Singleton
+    fun updatesFirestoreRepository(context: Context):UpdatesFirestoreRepository{
+        return UpdatesFirestoreRepositoryImpl(firestore = fireStoreDB(), storage = firebaseStorage(), context = context)
+    }
+    @Provides
+    @Singleton
+    fun lessonLessonsFirebaseRepository(
+        context: Context,
+        joYuriAuthenticationAPI: JoYuriAuthenticationAPI
+    ): LessonsFirebaseRepository{
+        return LessonsFirebaseRepositoryImpl(
+            context = context,
+            joYuriAuthenticationAPI = joYuriAuthenticationAPI,
+            storage = firebaseStorage(),
+            firestore = fireStoreDB()
+        )
+    }
 }

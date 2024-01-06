@@ -4,11 +4,8 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -35,24 +32,26 @@ class MainActivity : ComponentActivity() {
     private lateinit var navHostController: NavHostController
     private val activityScope = CoroutineScope(Dispatchers.Main)
 
-    @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        scheduleFirestoreWorker(this)
         WindowCompat.setDecorFitsSystemWindows(window, false)
 //        installSplashScreen()
         setContent {
-
             AVZTheme {
                 // A surface container using the 'background' color from the theme
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
+
                     val viewmodel : RootNavGraphViewModel = hiltViewModel()
                     navHostController = rememberNavController()
                     Box(modifier = Modifier.fillMaxSize()){
                         SetUpNavGraph(
-                            modifier = Modifier.widthIn(max = 600.dp).align(Alignment.TopCenter),
+                            modifier = Modifier
+                                .widthIn(max = 600.dp)
+                                .align(Alignment.TopCenter),
                             navHostController = navHostController,
                             viewmodel = viewmodel
                         )
@@ -62,6 +61,7 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
+
 @Composable
 fun Greeting(name: String, modifier: Modifier = Modifier) {
     Text(

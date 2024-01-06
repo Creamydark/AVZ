@@ -1,6 +1,7 @@
 package com.creamydark.avz.domain.some_api
 
 import android.app.Activity
+import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.speech.RecognizerIntent
@@ -15,7 +16,6 @@ class KimChaewonAPI : ActivityResultContract<Unit, String?>() {
             putExtra(RecognizerIntent.EXTRA_PROMPT, "Speak now...")
         }
     }
-
     override fun parseResult(resultCode: Int, intent: Intent?): String? {
         if (resultCode == Activity.RESULT_OK && intent != null) {
             val matches = intent.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)

@@ -16,6 +16,9 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CardElevation
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -77,13 +80,14 @@ fun BigBannerWithAutoScrollLayoutComposable(
         },
     )
 
-    Card(
+    ElevatedCard(
         onClick = {
             onBannerClicked()
         },
         modifier = modifier
             .fillMaxWidth()
             .height(200.dp)
+            .padding(16.dp)
     ) {
         Column(
             modifier = Modifier
@@ -100,60 +104,34 @@ fun BigBannerWithAutoScrollLayoutComposable(
                 color = Color.White.copy(alpha = 0.7f)
             )
             Spacer(modifier = Modifier.height(13.dp))
-            HorizontalPager(
-                state = pagerState,
-                verticalAlignment = Alignment.Top,
-                userScrollEnabled = false,
-            ) {
-                pos->
-                Column(
-                ) {
-                    Text(
-                        text = list[pos].title,
-                        style = MaterialTheme.typography.displayLarge,
-                        maxLines = 1
-                    )
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.TopStart){
+                if (list.isNotEmpty()){
+                    HorizontalPager(
+                        state = pagerState,
+                        verticalAlignment = Alignment.Top,
+                        userScrollEnabled = false,
+                    ) {
+                            pos->
+                        Column(
+                        ) {
+                            Text(
+                                text = list[pos].title,
+                                style = MaterialTheme.typography.displayLarge,
+                                maxLines = 1
+                            )
 //                FadingText(text = list[randPos].description)
-                    Text(
-                        modifier = Modifier,
-                        text = list[pos].description,
-                        style = MaterialTheme.typography.bodyMedium,
-                        maxLines = 3
-                    )
+                            Text(
+                                modifier = Modifier,
+                                text = list[pos].description,
+                                style = MaterialTheme.typography.bodyMedium,
+                                maxLines = 3
+                            )
+                        }
+                    }
+                }else{
+                    Text(text = "Hi! :)", style = MaterialTheme.typography.headlineMedium)
                 }
             }
-
-        }
-    }
-}
-@Composable
-private fun FadingText(text: String) {
-    val isVisible = remember { mutableStateOf(true) }
-    AnimatedVisibility(
-        visible = isVisible.value,
-        enter = fadeIn(),
-        exit = fadeOut()
-    ) {
-        Text(text, modifier = Modifier.fillMaxWidth())
-    }
-    // Update the visibility state when the text changes.
-    DisposableEffect(text) {
-        isVisible.value = true
-        onDispose {
-            isVisible.value = false
-        }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun Prev(
-
-) {
-    Box(modifier = Modifier
-        .fillMaxSize()
-        .padding(16.dp), contentAlignment = Alignment.Center){
-        Column {
 
         }
     }

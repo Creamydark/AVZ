@@ -28,7 +28,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.creamydark.avz.R
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoginScreen3 (loginClicked:()->Unit) {
     Scaffold(Modifier.fillMaxSize()) {inner->
@@ -49,7 +48,7 @@ fun LoginScreen3 (loginClicked:()->Unit) {
                 Text(
                     modifier = Modifier
                         .fillMaxWidth(),
-                    text = "Let’s get started.",
+                    text = "Welcome to AVZ",
                     fontSize = 32.sp,
                     style = MaterialTheme.typography.headlineMedium
                 )
@@ -61,13 +60,6 @@ fun LoginScreen3 (loginClicked:()->Unit) {
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
                 )
             }
-//            GoogleButton(
-//                modifier = Modifier
-//                    .align(Alignment.BottomCenter),
-//                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
-//            ){
-//                loginClicked()
-//            }
             OutlinedButton(
                 modifier = Modifier.align(Alignment.BottomCenter).fillMaxWidth(),
                 onClick = {

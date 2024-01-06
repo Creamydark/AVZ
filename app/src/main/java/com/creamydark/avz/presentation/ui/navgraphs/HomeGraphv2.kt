@@ -2,11 +2,13 @@ package com.creamydark.avz.presentation.ui.navgraphs
 
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.launch
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.Edit
@@ -28,12 +30,14 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -43,30 +47,38 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import coil.compose.AsyncImage
-import com.creamydark.avz.domain.ResultType
+import com.creamydark.avz.domain.model.ResultType
 import com.creamydark.avz.domain.some_api.KimChaewonAPI
 import com.creamydark.avz.presentation.ui.screen.AboutAppScreen
 import com.creamydark.avz.presentation.ui.screen.AnnouncementsScreen
 import com.creamydark.avz.presentation.ui.screen.FavoriteScreen
 import com.creamydark.avz.presentation.ui.screen.HomeScreen
+import com.creamydark.avz.presentation.ui.screen.LessonDetailScreen
 import com.creamydark.avz.presentation.ui.screen.LessonsScreen
 import com.creamydark.avz.presentation.ui.screen.ProfileScreen
 import com.creamydark.avz.presentation.ui.screen.ScrollScrollKaScreen
+import com.creamydark.avz.presentation.ui.screen.UploadLessonsScreen
 import com.creamydark.avz.presentation.ui.screen.UploadPostScreen
 import com.creamydark.avz.presentation.ui.screen.UploadWordsScreen
 import com.creamydark.avz.presentation.ui.screen.WordsSearchScreen
 import com.creamydark.avz.presentation.viewmodels.AnnouncementsViewModel
 import com.creamydark.avz.presentation.viewmodels.HomeGraphViewModel
+import com.creamydark.avz.presentation.viewmodels.LessonsViewModel
 import com.creamydark.avz.presentation.viewmodels.ProfileViewModel
 import com.creamydark.avz.presentation.viewmodels.WordScrollViewModel
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
+import com.rizzi.bouquet.ResourceType
+import com.rizzi.bouquet.VerticalPDFReader
+import com.rizzi.bouquet.rememberVerticalPdfReaderState
 import kotlinx.coroutines.launch
 
 
@@ -79,6 +91,7 @@ fun HomeGraphv2(
     val homeGraphViewModel :HomeGraphViewModel = hiltViewModel()
     val profileViewModel :ProfileViewModel = hiltViewModel()
     val announcementsViewModel : AnnouncementsViewModel = hiltViewModel()
+    val lessonsViewModel : LessonsViewModel = hiltViewModel()
 
     val navHostController = rememberNavController()
 
@@ -100,6 +113,32 @@ fun HomeGraphv2(
     val addFavoriteResult by wordScrollViewModel.addFavoriteResult.collectAsStateWithLifecycle(initialValue = ResultType.loading())
 
     val deletePostResult by announcementsViewModel.deleteResult.collectAsStateWithLifecycle()
+    val deleteVocabularyResult by wordScrollViewModel.deleteWordResult.collectAsStateWithLifecycle()
+
+    when(deleteVocabularyResult){
+        is ResultType.Error -> {
+            val message = (deleteVocabularyResult as ResultType.Error)
+            LaunchedEffect(
+                key1 = message,
+                block = {
+                    snackbarHostState.showSnackbar(message = message.exception.message?:"Unknown Error", withDismissAction = true)
+                },
+            )
+        }
+        ResultType.Loading -> {
+
+        }
+        is ResultType.Success -> {
+            val message = (deleteVocabularyResult as ResultType.Success<String>).data
+            LaunchedEffect(
+                key1 = message,
+                block = {
+                    snackbarHostState.showSnackbar(message = message, withDismissAction = true)
+                },
+            )
+        }
+    }
+
     when(deletePostResult){
         is ResultType.Error -> {
             val message = (deletePostResult as ResultType.Error)
@@ -285,6 +324,24 @@ fun HomeGraphv2(
                                 )
                             }
                         }
+                        "lessons_screen" ->{
+                            IconButton(
+                                onClick = {
+                                    navHostController.navigate("upload_lessons_screen")
+                                },
+                            ) {
+                                Icon(imageVector = Icons.Outlined.Add, contentDescription = "")
+                            }
+                        }
+                        "updates_screen" ->{
+                            IconButton(
+                                onClick = {
+                                    navHostController.navigate("upload_post_screen")
+                                },
+                            ) {
+                                Icon(imageVector = Icons.Outlined.Add, contentDescription = "", tint = MaterialTheme.colorScheme.secondary)
+                            }
+                        }
                     }
                 },
                 navigationIcon = {
@@ -356,10 +413,20 @@ fun HomeGraphv2(
 //                ScrollScrollKaScreen(viewModel = wordScrollViewModel)
                 val updatesList by announcementsViewModel.postList.collectAsStateWithLifecycle()
                 val wordList by wordScrollViewModel._wordsList.collectAsStateWithLifecycle()
+                val lessonList by lessonsViewModel.lessonList.collectAsStateWithLifecycle()
                 HomeScreen(
                     updatesList = updatesList,
                     wordsList = wordList,
-                    navHostController = navHostController
+                    lessonsList = lessonList,
+                    navHostController = navHostController,
+                    lessonOnClicked = {
+                        data->
+                        lessonsViewModel.selectLesson(data).also {
+                            navHostController.navigate("lessons_detail_screen"){
+                                launchSingleTop = true
+                            }
+                        }
+                    }
                 )
             }
             composable("updates_screen"){
@@ -367,7 +434,13 @@ fun HomeGraphv2(
                 AnnouncementsScreen(viewModel = announcementsViewModel)
             }
             composable("lessons_screen") {
-                LessonsScreen()
+                LessonsScreen(
+                    navHostController = navHostController,
+                    viewModel = lessonsViewModel
+                )
+            }
+            composable("lessons_detail_screen") {
+                LessonDetailScreen(navHostController = navHostController,lessonsViewModel = lessonsViewModel)
             }
             composable("favorites_screen") {
                 val favList = userData?.favoriteWords?: emptyList()
@@ -382,36 +455,17 @@ fun HomeGraphv2(
             }
             composable("profile_screen") {
                 ProfileScreen(
-                    profileViewModel
+                    profileViewModel,
+                    navHostController
                 ){
-                    clicked ->
-                    when(clicked){
-                        0 ->{
-                            navHostController.navigate(route = "upload_words_screen"){
-                                launchSingleTop = true
-                            }
-                        }
-                        1 -> {
-                            navHostController.navigate(route = "upload_post_screen"){
-                                launchSingleTop = true
-                            }
-                        }
-                        2 -> {
-                            navHostController.navigate(route = "about_screen"){
-                                launchSingleTop = true
-                            }
-                        }
-                        3 -> {
-                            homeGraphViewModel.signOut()
-                        }
-                    }
+                    homeGraphViewModel.signOut()
                 }
             }
             composable("upload_words_screen"){
                 UploadWordsScreen{
-                    word, description, example ->
+                   data ->
                     wordScrollViewModel.uploadWordsToFirestore(
-                        word, description, example
+                        data.title, data.description, data.example
                     )
                 }
             }
@@ -448,24 +502,51 @@ fun HomeGraphv2(
             composable("vocabulary_screen") {
                 ScrollScrollKaScreen(wordScrollViewModel)
             }
+            composable("upload_lessons_screen") {
+                UploadLessonsScreen(
+                    navHostController,
+                    viewModel = lessonsViewModel
+                )
+            }
+
+            composable(
+                route = "pdf_viewer/{url}/{id}",
+                arguments = listOf(
+                    navArgument("url") {
+                        type = NavType.StringType
+                    },
+                    navArgument("id") {
+                        type = NavType.StringType
+                    },
+                ),
+            ){
+                val some = it.arguments?.getString("url")?:""
+                val id = it.arguments?.getString("id")?:""
+                val pdf by lessonsViewModel.pdfResultFromNet.collectAsStateWithLifecycle()
+                DisposableEffect(key1 = some){
+                    lessonsViewModel.downloadPdfFromInternet(url = some,id)
+                    onDispose {
+                        lessonsViewModel.onClearedModel()
+                    }
+                }
+                if (pdf == null){
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center){
+                        Text(text = "Loading")
+                    }
+                }
+                pdf?.let {
+                    pdff->
+                    val pdfState = rememberVerticalPdfReaderState(
+                        resource = ResourceType.Local(pdff),
+                        isZoomEnable = true
+                    )
+                    VerticalPDFReader(state =pdfState , modifier =  Modifier)
+                }
+            }
         }
 
     }
 }
-/*@Composable
-@OptIn(ExperimentalPermissionsApi::class)
-private fun LaunchPermissionRequest(
-    context: Context,
-    permissionState: PermissionState
-) {
-    val requestPermissionLauncher = rememberLauncherForActivityResult(contract = ActivityResultContracts.RequestPermission() ){
-        permissionState.launchPermissionRequest()
-    }
-    lifecycleOwner.lifecycleScope.launch {
-        val result = requestPermissionLauncher.launch(permissionState.permission)
-        permissionState.updatePermissionResult(result)
-    }
-}*/
 
 @Composable
 fun currentRoute(navController: NavHostController): String {
@@ -486,6 +567,9 @@ fun getTitle(route: String?): String {
         "updates_screen" -> "Updates"
         "upload_post_screen" -> "New Post"
         "search_word_screen" -> "Search Words"
+        "upload_lessons_screen" -> "Publish a lesson"
+        "pdf_viewer/{url}/{id}" -> "PDF Viewer"
+        "lessons_detail_screen" -> "Study"
 //        "announcements" -> "Announcements"
         else -> "Loading" // Default title
     }

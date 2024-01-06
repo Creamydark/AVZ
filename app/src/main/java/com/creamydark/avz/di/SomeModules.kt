@@ -2,10 +2,8 @@ package com.creamydark.avz.di
 
 import android.content.Context
 import com.creamydark.avz.TextToSpeechManager
-import com.creamydark.avz.data.datasource.AnnouncementRepository
 import com.creamydark.avz.data.datasource.RandomWordsAPI
 import com.creamydark.avz.domain.some_api.JoYuriAuthenticationAPI
-import com.creamydark.avz.domain.usecase.GetAllAnnouncementsUseCase
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
@@ -79,9 +77,5 @@ object SomeModules {
         return context
     }
 
-    @Provides
-    @Singleton
-    fun getAllAnnouncementsUseCase(repository: AnnouncementRepository): GetAllAnnouncementsUseCase{
-        return GetAllAnnouncementsUseCase(repository)
-    }
+
 }

@@ -5,12 +5,12 @@ package com.creamydark.avz.presentation.viewmodels
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.creamydark.avz.domain.ResultType
+import com.creamydark.avz.domain.model.ResultType
 import com.creamydark.avz.domain.model.UserData
 import com.creamydark.avz.domain.some_api.JoYuriAuthenticationAPI
-import com.creamydark.avz.domain.usecase.AddUserExtraDataUseCases
-import com.creamydark.avz.domain.usecase.FirebaseAuthListenerUseCase
-import com.creamydark.avz.domain.usecase.SignInUserUsingCredentialsUseCases
+import com.creamydark.avz.domain.usecase.userclient.AddUserExtraDataUseCases
+import com.creamydark.avz.domain.usecase.userclient.FirebaseAuthListenerUseCase
+import com.creamydark.avz.domain.usecase.userclient.SignInUserUsingCredentialsUseCases
 import com.creamydark.avz.enozienum.UserAuthenticationState
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
@@ -55,9 +55,8 @@ class RootNavGraphViewModel @Inject constructor(
                 email = email,
                 name = name
             )
-            addUserExtraDataUseCases.execute(data = data).collect(){
-                result ->
-                when(result){
+            addUserExtraDataUseCases.execute(data = data).apply {
+                when(this){
                     is ResultType.Error -> {
                         Log.d("RootNavGraphViewModel", "uploadDataToFirestore: Error")
                     }

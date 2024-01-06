@@ -1,16 +1,19 @@
 package com.creamydark.avz.presentation.viewmodels
 
+import android.content.Context
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.creamydark.avz.TextToSpeechManager
-import com.creamydark.avz.domain.ResultType
+import com.creamydark.avz.domain.model.ResultType
 import com.creamydark.avz.domain.model.WordsDataModel
 import com.creamydark.avz.domain.some_api.JoYuriAuthenticationAPI
-import com.creamydark.avz.domain.usecase.AddWordsFirestoreUseCase
-import com.creamydark.avz.domain.usecase.GenerateRandomWordsUseCase
-import com.creamydark.avz.domain.usecase.GetAllWordsFromFirestoreUseCase
-import com.creamydark.avz.domain.usecase.UpdateFavoriteWordsUseCase
+import com.creamydark.avz.domain.usecase.wordsvocabulary.AddWordsFirestoreUseCase
+import com.creamydark.avz.domain.usecase.wordsvocabulary.DeleteVocabularyWordUseCase
+import com.creamydark.avz.domain.usecase.wordsvocabulary.GenerateRandomWordsUseCase
+import com.creamydark.avz.domain.usecase.wordsvocabulary.GetAllWordsFromFirestoreUseCase
+import com.creamydark.avz.domain.usecase.userclient.UpdateUserFavoriteWordsUseCase
+import com.creamydark.avz.domain.usecase.wordsvocabulary.UpdateWordsToFirestoreUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -23,19 +26,32 @@ import javax.inject.Inject
 @HiltViewModel
 class WordScrollViewModel @Inject constructor(
     private val addWordsFirestoreUseCase: AddWordsFirestoreUseCase,
-    private val textToSpeechManager: TextToSpeechManager,
-    private val updateFavoriteWordsUseCase: UpdateFavoriteWordsUseCase,
+    private val updateUserFavoriteWordsUseCase: UpdateUserFavoriteWordsUseCase,
     private val generateRandomWordsUseCase: GenerateRandomWordsUseCase,
     private val getAllWordsFromFirestoreUseCase: GetAllWordsFromFirestoreUseCase,
+    private val deleteVocabularyWordUseCase: DeleteVocabularyWordUseCase,
+    private val updateWordsToFirestoreUseCase: UpdateWordsToFirestoreUseCase,
+    private val context: Context,
     joYuriAuthenticationAPI: JoYuriAuthenticationAPI
 ):ViewModel() {
 
+
+    private val textToSpeechManager = TextToSpeechManager(context)
 
     private val wordsList = MutableStateFlow(listOf<WordsDataModel>())
     val _wordsList = wordsList.asStateFlow()
 
     private val searchResultList_ = MutableStateFlow(listOf<WordsDataModel>())
     val searchResultList = searchResultList_.asStateFlow()
+
+    private val _deleteWordResult = MutableStateFlow<ResultType<String>>(ResultType.loading())
+    val deleteWordResult = _deleteWordResult.asStateFlow()
+
+    private val _uploadResult = MutableStateFlow<ResultType<String>>(ResultType.loading())
+    val uploadResult = _uploadResult.asStateFlow()
+
+    private val _addFavoriteResult = MutableStateFlow<ResultType<String>>(ResultType.loading())
+    val addFavoriteResult = _addFavoriteResult.asStateFlow()
 
     fun editSearch(text:String){
         viewModelScope.launch {
@@ -58,11 +74,7 @@ class WordScrollViewModel @Inject constructor(
     val email = joYuriAuthenticationAPI.getEmail()
 
 
-    private val _uploadResult = MutableStateFlow<ResultType<String>>(ResultType.loading())
-    private val _addFavoriteResult = MutableStateFlow<ResultType<String>>(ResultType.loading())
 
-    val uploadResult = _uploadResult.asStateFlow()
-    val addFavoriteResult = _addFavoriteResult.asStateFlow()
 
 
 
@@ -71,10 +83,9 @@ class WordScrollViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             getAllWordsFromFirestoreUseCase.invoke().collectLatest {
                 result->
+                val list = result?: emptyList()
                 wordsList.update {
-                    result.sortedBy {
-                        it.id
-                    }
+                    list
                 }
             }
             /*addWordsFirestoreUseCase.getAllWords().collect{
@@ -117,22 +128,17 @@ class WordScrollViewModel @Inject constructor(
     fun uploadWordsToFirestore(
         word:String,description:String,example:String
     ){
-        val data = if (word.isNotBlank()&&description.isNotBlank()&&example.isNotBlank()){
-            val timestamp = System.currentTimeMillis()
-            WordsDataModel(
-                title = word,
-                description = description,
-                example = example,
-                uploader = email?:"none",
-                id = timestamp
-            )
-        }else{
-            null
-        }
+        val data = WordsDataModel(
+            title = word,
+            description = description,
+            example = example,
+            uploader = email?:"none"
+        )
         viewModelScope.launch {
-            addWordsFirestoreUseCase.upload(data).collect{
-                result->
-                _uploadResult.value = result
+            addWordsFirestoreUseCase.upload(data).apply {
+                _uploadResult.update {
+                    this
+                }
             }
         }
     }
@@ -143,7 +149,7 @@ class WordScrollViewModel @Inject constructor(
         email?.let {
             emailll->
             viewModelScope.launch(Dispatchers.IO) {
-                updateFavoriteWordsUseCase(emailll, title).collectLatest {
+                updateUserFavoriteWordsUseCase(emailll, title).collectLatest {
                     result->
                     _addFavoriteResult.value = result
                 }
@@ -152,6 +158,23 @@ class WordScrollViewModel @Inject constructor(
     }
 
 
+    fun deleteWord(dataModel: WordsDataModel){
+        viewModelScope.launch(Dispatchers.IO) {
+            deleteVocabularyWordUseCase.invokeDelete(dataModel).apply {
+                _deleteWordResult.update {
+                    this
+                }
+            }
+        }
+    }
+
+    fun updateWord(dataModel: WordsDataModel){
+        viewModelScope.launch(Dispatchers.IO) {
+            updateWordsToFirestoreUseCase.invoke(dataModel).apply {
+
+            }
+        }
+    }
     override fun onCleared() {
         super.onCleared()
         textToSpeechManager.shutdown()

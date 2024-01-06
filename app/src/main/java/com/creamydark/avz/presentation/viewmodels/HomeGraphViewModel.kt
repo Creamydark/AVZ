@@ -2,7 +2,7 @@ package com.creamydark.avz.presentation.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.creamydark.avz.domain.usecase.SignOutUseCase
+import com.creamydark.avz.domain.usecase.userclient.SignOutUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject

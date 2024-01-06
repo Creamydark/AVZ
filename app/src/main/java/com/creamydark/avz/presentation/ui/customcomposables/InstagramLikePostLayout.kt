@@ -46,14 +46,12 @@ fun InstagramLikePostLayout(
     username: String,
     caption: String,
     timestamp: Long,
-    likesCount: Int=0,
     model: Any?,
     photoUrl: String,
-    commentsCount: Int=0,
     userType:Boolean=true,
     onSelectDropDown: (p: Int) -> Unit
 ) {
-    val timestampF = YenaTools().convertMillisToDateTime(timestamp)
+    val timestampF = YenaTools().timeAgo(timestamp)
 
     Column(
         modifier = Modifier
@@ -211,6 +209,8 @@ private fun CustomDropDownMenu(
                 text = { Text("Edit") },
                 onClick = {
                     onExpanded(false)
+                    onSelectDropDown(0)
+
                 },
                 leadingIcon = {
                     Icon(

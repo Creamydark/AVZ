@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -13,6 +14,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -35,70 +38,78 @@ fun HomeUpdatesItem(
     postImg:Any? = null,
     dpUser:Any?=null
 ) {
-    Box(
+    ElevatedCard(
         modifier = modifier
             .width(132.dp)
-            .height(220.dp)
-            .background(
+            .height(220.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = Color(0xff323232),
+        )
+    ) {
+        Box(
+            modifier = modifier.fillMaxSize()
+            /*.background(
                 color = Color(0xff323232),
                 shape = RoundedCornerShape(16.dp)
             )
             .clip(
                 shape = RoundedCornerShape(16.dp)
-            )
-    ) {
-        Column(
-            modifier = Modifier
-                .align(Alignment.TopCenter)
-                .fillMaxWidth(),
+            )*/
         ) {
-            AsyncImage(
+            Column(
                 modifier = Modifier
-                    .aspectRatio(1f)
+                    .align(Alignment.TopCenter)
                     .fillMaxWidth(),
-                model = postImg,
-                contentDescription = "",
-                contentScale = ContentScale.Crop
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                modifier = Modifier.padding(horizontal = 8.dp),
-                color = Color.White,
-                text = title.ifBlank { "No Caption" },
-                fontSize = 12.sp,
-                style = MaterialTheme.typography.titleSmall,
-                maxLines = 2
-            )
-            Text(
-                modifier = Modifier.padding(horizontal = 8.dp),
-                text = YenaTools().convertMillisToDateTime(date),
-                fontSize = 8.sp,
-                color = Color.White.copy(alpha = 0.7f),
-            )
-        }
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(
-                    8.dp
+            ) {
+                AsyncImage(
+                    modifier = Modifier
+                        .aspectRatio(1f)
+                        .fillMaxWidth(),
+                    model = postImg,
+                    contentDescription = "",
+                    contentScale = ContentScale.Crop
                 )
-                .align(Alignment.BottomCenter),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            AsyncImage(
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    modifier = Modifier.padding(horizontal = 8.dp),
+                    color = Color.White,
+                    text = title.ifBlank { "No Caption" },
+                    fontSize = 12.sp,
+                    style = MaterialTheme.typography.titleSmall,
+                    maxLines = 2
+                )
+                Text(
+                    modifier = Modifier.padding(horizontal = 8.dp),
+                    text = YenaTools().timeAgo(date),
+                    fontSize = 8.sp,
+                    color = Color.White.copy(alpha = 0.7f),
+                )
+            }
+            Row(
                 modifier = Modifier
-                    .clip(shape = CircleShape)
-                    .size(16.dp)
-                    .background(Color.Gray),
-                model = dpUser,
-                contentDescription = ""
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            Text(
-                text = postedBy,
-                fontSize = 8.sp,
-                color = Color.White.copy(alpha = 0.7f),
-            )
+                    .fillMaxWidth()
+                    .padding(
+                        8.dp
+                    )
+                    .align(Alignment.BottomCenter),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                AsyncImage(
+                    modifier = Modifier
+                        .clip(shape = CircleShape)
+                        .size(16.dp)
+                        .background(Color.Gray),
+                    model = dpUser,
+                    contentDescription = ""
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = postedBy,
+                    fontSize = 8.sp,
+                    color = Color.White.copy(alpha = 0.7f),
+                )
+            }
         }
+
     }
 }

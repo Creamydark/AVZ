@@ -1,4 +1,4 @@
-package com.creamydark.avz.domain.usecase
+package com.creamydark.avz.domain.usecase.userclient
 
 import com.creamydark.avz.data.repository.GoogleClientSignInRepository
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount

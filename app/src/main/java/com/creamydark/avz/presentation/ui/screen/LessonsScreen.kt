@@ -3,60 +3,71 @@ package com.creamydark.avz.presentation.ui.screen
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.creamydark.avz.domain.model.SomeItem
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavHostController
+import com.creamydark.avz.domain.model.LessonData
+import com.creamydark.avz.enozItools.YenaTools
+import com.creamydark.avz.presentation.ui.customcomposables.LessonListItemComposable
+import com.creamydark.avz.presentation.viewmodels.LessonsViewModel
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LessonsScreen(
+    navHostController: NavHostController,
+    viewModel: LessonsViewModel
 ){
-    val itemss = arrayListOf<SomeItem>()
+    val lessonList by viewModel.lessonList.collectAsStateWithLifecycle()
+    LazyColumn(
+        contentPadding = PaddingValues(16.dp),
 
-    val desccc = "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book."
-
-    SideEffect {
-        for (a in 1..5){
-            itemss.add(SomeItem(title = "Lesson $a", description = desccc))
+    ){
+        item {
+            if (lessonList.isEmpty()){
+                Text(modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center, text = "Empty Lessons")
+            }
         }
-    }
-    Scaffold(
-        Modifier.fillMaxSize()
-    ){ innerpadding ->
-        LazyColumn(
-            Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp),
-            contentPadding = PaddingValues()
+        items(
+            items = lessonList.sortedBy { it.timestamp }.reversed(),
+            key = {
+                item: LessonData ->
+                item.id
+            }
         ){
-            items(itemss,key = {
-                it.title
-            }){item ->
-                LessonListItem(title = item.title, desc = item.description )
-                Spacer(modifier = Modifier.size(16.dp))
+            item ->
+            Spacer(modifier = Modifier.height(16.dp))
+            LessonListItemComposable(
+                title = item.title,
+                description = YenaTools().simpleDateFormatter(item.timestamp?.time?:0)
+            ) {
+                viewModel.selectLesson(
+                    item
+                ).also {
+                    navHostController.navigate("lessons_detail_screen"){
+                        launchSingleTop = true
+                    }
+                }
             }
         }
     }
 }
-
-
-
-
-
 
 @Composable
 fun LessonListItem(title:String,desc:String,modifier: Modifier = Modifier){

@@ -24,4 +24,5 @@ class TextToSpeechManager(context: Context) : TextToSpeech.OnInitListener {
         textToSpeech.stop()
         textToSpeech.shutdown()
     }
+
 }

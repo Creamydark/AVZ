@@ -23,6 +23,8 @@
 -keepattributes *Annotation*
 #-keepclassmembers class com.creamydark.avz**{*;}
 -keep class com.creamydark**{ *; }
+#-keep class com.rizzi.bouquet**
+-dontwarn com.gemalto.jp2.JP2Decoder**
 #-keep class com.creamydark.avz.domain.model.UserData{*;}
 #-keep class dagger.hilt.** { *; }
 #-keepclassmembers class dagger.hilt.** { *; }

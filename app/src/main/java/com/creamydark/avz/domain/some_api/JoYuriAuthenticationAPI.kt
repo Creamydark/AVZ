@@ -12,13 +12,10 @@ import javax.inject.Inject
 
 class JoYuriAuthenticationAPI @Inject constructor(
 ) {
-
     private val userAuthenticationState = MutableStateFlow(UserAuthenticationState.Loading)
-
     private val currentFirebaseUser = MutableStateFlow<FirebaseUser?>(null)
     private val _userData = MutableStateFlow<UserData?>(null)
     val userData = _userData.asStateFlow()
-
     fun updateUserData(data:UserData?){
         _userData.value = data
     }

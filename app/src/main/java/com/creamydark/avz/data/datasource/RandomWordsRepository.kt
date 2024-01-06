@@ -1,6 +1,6 @@
 package com.creamydark.avz.data.datasource
 
-import com.creamydark.avz.domain.ResultType
+import com.creamydark.avz.domain.model.ResultType
 import com.creamydark.avz.domain.model.SomeRandomWordData
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow

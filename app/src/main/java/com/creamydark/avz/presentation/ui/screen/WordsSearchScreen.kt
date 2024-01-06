@@ -1,5 +1,6 @@
 package com.creamydark.avz.presentation.ui.screen
 
+import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -16,6 +17,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.creamydark.avz.R
@@ -29,6 +31,7 @@ fun WordsSearchScreen(
     onSearchText:(text:String)->Unit,
     voiceBtn:()->Unit
 ) {
+    val context = LocalContext.current
     Column(modifier = Modifier
         .fillMaxWidth()
         .padding(horizontal = 16.dp)) {
@@ -74,7 +77,7 @@ fun WordsSearchScreen(
                         SearchResultItemComposable(
                             modifier = Modifier
                                 .clickable {
-
+                                    Toast.makeText(context , "Soon to be added",Toast.LENGTH_SHORT).show()
                                 }
                                 .padding(16.dp)
                                 .fillMaxWidth(),
